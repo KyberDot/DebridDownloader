@@ -44,6 +44,8 @@ pub fn run() {
             // Settings
             commands::settings::get_settings,
             commands::settings::update_settings,
+            // Search
+            commands::search::search_torrents,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
