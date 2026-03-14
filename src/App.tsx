@@ -13,9 +13,6 @@ import Layout from "./components/Layout";
 import AuthPage from "./pages/AuthPage";
 import TorrentsPage from "./pages/TorrentsPage";
 import DownloadsPage from "./pages/DownloadsPage";
-import HistoryPage from "./pages/HistoryPage";
-import SettingsPage from "./pages/SettingsPage";
-import SearchPage from "./pages/SearchPage";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -123,14 +120,8 @@ function App() {
             <>
               <Route element={<Layout />}>
                 <Route path="/torrents" element={<TorrentsPage />} />
-                <Route path="/search" element={<SearchPage />} />
                 <Route path="/downloads" element={<DownloadsPage />} />
-                <Route path="/history" element={<HistoryPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route
-                  path="*"
-                  element={<Navigate to="/torrents" replace />}
-                />
+                <Route path="*" element={<Navigate to="/torrents" replace />} />
               </Route>
             </>
           )}
