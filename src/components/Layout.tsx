@@ -33,7 +33,7 @@ export default function Layout() {
             <NavLink
               key={item.to}
               to={item.to}
-              className={({ isActive }) =>
+              className={({ isActive }: { isActive: boolean }) =>
                 `sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ${
                   isActive ? "active" : "text-zinc-300"
                 }`
