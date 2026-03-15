@@ -214,7 +214,10 @@ export default function CompletedPage() {
       {contextMenu && (
         <div
           className="fixed bg-[#0f0f18] border border-[rgba(255,255,255,0.06)] rounded-lg py-1.5 w-52 z-[60] shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
-          style={{ left: contextMenu.x, top: contextMenu.y }}
+          style={{
+            left: Math.min(contextMenu.x, window.innerWidth - 240),
+            top: Math.min(contextMenu.y, window.innerHeight - 120),
+          }}
           onMouseDown={(e) => e.stopPropagation()}
         >
           {(() => {
