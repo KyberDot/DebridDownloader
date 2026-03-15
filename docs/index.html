@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>DebridDownloader — Fast Desktop Client for Real-Debrid</title>
+  <meta name="description" content="A blazing-fast native desktop client for managing torrents and downloads through Real-Debrid. Built with Tauri, React, and Rust.">
+  <meta property="og:title" content="DebridDownloader — Fast Desktop Client for Real-Debrid">
+  <meta property="og:description" content="A blazing-fast native desktop client for managing torrents and downloads through Real-Debrid. Built with Tauri, React, and Rust.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://prjoni99.github.io/DebridDownloader/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DebridDownloader — Fast Desktop Client for Real-Debrid">
+  <meta name="twitter:description" content="A blazing-fast native desktop client for managing torrents and downloads through Real-Debrid. Built with Tauri, React, and Rust.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2377C351' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/%3E%3C/svg%3E">
+  <style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: #0a0a0a;
+  color: #fff;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:root {
+  --green: #77C351;
+  --green-glow: rgba(119, 195, 81, 0.3);
+  --bg-dark: #0a0a0a;
+  --bg-card: rgba(255,255,255,0.05);
+  --border-card: rgba(255,255,255,0.1);
+  --text-secondary: rgba(255,255,255,0.6);
+}
+a { color: var(--green); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(180deg, #1a1a2e 0%, #0a0a0a 100%);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--green-glow) 0%, transparent 70%);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hero::before { animation: none; opacity: 0.3; }
+  .feature-card, .download-btn, .download-row { transition: none; }
+}
+.hero-icon { width: 64px; height: 64px; margin-bottom: 1.5rem; position: relative; }
+.hero h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; letter-spacing: -0.02em; position: relative; }
+.hero .tagline { font-size: clamp(1.1rem, 2.5vw, 1.4rem); color: var(--text-secondary); margin-top: 0.75rem; position: relative; }
+.hero .subtext { font-size: 1rem; color: var(--text-secondary); margin-top: 0.5rem; position: relative; }
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding: 0.875rem 2rem;
+  background: var(--green);
+  color: #0a0a0a;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.download-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--green-glow); text-decoration: none; }
+.download-btn svg { width: 20px; height: 20px; }
+.download-btn .os-icon { display: none; width: 20px; height: 20px; fill: #0a0a0a; }
+.download-btn .os-icon.visible { display: inline-block; }
+.other-platforms { margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-secondary); position: relative; }
+.section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+.section-title { font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: 3rem; }
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.feature-card svg { width: 32px; height: 32px; color: var(--green); margin-bottom: 0.75rem; }
+.feature-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.feature-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+@media (max-width: 768px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .features-grid { grid-template-columns: 1fr; } }
+.screenshots-row {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 1rem;
+}
+.screenshot-frame {
+  flex: 0 0 min(100%, 700px);
+  scroll-snap-align: start;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-card);
+  background: var(--bg-card);
+}
+.window-chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.08);
+}
+.window-dot { width: 12px; height: 12px; border-radius: 50%; }
+.window-dot.red { background: #ff5f57; }
+.window-dot.yellow { background: #ffbd2e; }
+.window-dot.green { background: #28c840; }
+.screenshot-placeholder {
+  height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  border: 2px dashed var(--border-card);
+  margin: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+.downloads-grid {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.download-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  transition: border-color 0.2s;
+  color: #fff;
+}
+.download-row:hover { border-color: var(--green); text-decoration: none; }
+.download-row.recommended { border-color: var(--green); background: rgba(119,195,81,0.08); }
+.download-row svg { width: 24px; height: 24px; flex-shrink: 0; }
+.download-row .platform-info { flex: 1; }
+.download-row .platform-name { font-weight: 600; font-size: 0.95rem; }
+.download-row .platform-arch { font-size: 0.8rem; color: var(--text-secondary); }
+.download-row .badge { font-size: 0.7rem; background: var(--green); color: #0a0a0a; padding: 2px 8px; border-radius: 99px; font-weight: 600; margin-left: 0.5rem; }
+.download-row .dl-link { font-weight: 600; font-size: 0.9rem; color: var(--green); }
+.tech-strip {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 3rem 2rem;
+  flex-wrap: wrap;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+.tech-strip span { display: flex; align-items: center; gap: 0.4rem; }
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border-card);
+}
+footer a { color: var(--text-secondary); }
+footer a:hover { color: var(--green); }
+a:focus-visible, .download-btn:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <header id="hero" class="hero">
+    <svg class="hero-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green);">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+    <h1>DebridDownloader</h1>
+    <p class="tagline">Blazing-fast desktop client for Real-Debrid</p>
+    <p class="subtext">Manage torrents and downloads with a native app built on Rust + React</p>
+    <a id="hero-download" class="download-btn" href="https://github.com/prjoni99/DebridDownloader/releases/latest">
+      <svg class="os-icon" data-os="mac" aria-hidden="true" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83"/><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/></svg>
+      <svg class="os-icon" data-os="win" aria-hidden="true" viewBox="0 0 24 24"><path fill="#0a0a0a" d="M3 12V6.5l8-1.1V12H3zm10 0V5.2l8-1.2V12h-8zM3 13h8v6.6l-8-1.1V13zm10 0h8v6l-8 1.2V13z"/></svg>
+      <svg class="os-icon" data-os="linux" aria-hidden="true" viewBox="0 0 24 24"><path fill="#0a0a0a" d="M12.5 2c-1.6 0-2.9 1.5-3 3.4 0 .5.1 1.1.3 1.6-.6.5-1 1.2-1.1 2-.2 1.2.2 2.5.4 3.2-.5.6-1.2 1.7-1.5 3-.3 1.3 0 2.6.8 3.4.5.5.5 1 .2 1.8-.3.7-.4 1.5.3 2.2.5.5 1.3.8 2.2.4.7-.3 1.1-.3 1.8 0 .9.4 1.9.1 2.4-.5.6-.7.5-1.5.2-2.2-.3-.8-.3-1.3.2-1.8.8-.8 1.1-2.1.8-3.4-.3-1.3-1-2.4-1.5-3 .2-.7.6-2 .4-3.2-.1-.8-.5-1.5-1.1-2 .2-.5.3-1.1.3-1.6-.1-1.9-1.4-3.4-3-3.4z"/></svg>
+      <span id="hero-download-label">Download on GitHub</span>
+    </a>
+    <a class="other-platforms" href="#downloads">Other platforms &#8595;</a>
+  </header>
+
+  <!-- Features -->
+  <section id="features" class="section">
+    <h2 class="section-title">Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M6 15V9a6 6 0 0 1 12 0v6"/><path d="M6 15a3 3 0 0 0 6 0"/><path d="M12 15a3 3 0 0 0 6 0"/>
+        </svg>
+        <h3>Torrent Management</h3>
+        <p>Add magnets or .torrent files, select specific files, and monitor progress in real time.</p>
+      </div>
+      <div class="feature-card">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <h3>Tracker Search</h3>
+        <p>Add your own tracker sources in settings and search across all of them in parallel.</p>
+      </div>
+      <div class="feature-card">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <h3>Download Engine</h3>
+        <p>Multi-threaded downloads with real-time speed, ETA, and progress tracking.</p>
+      </div>
+      <div class="feature-card">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/>
+        </svg>
+        <h3>Keyboard First</h3>
+        <p>&#8984;K search, &#8984;R refresh, arrow navigation, Enter to download. Full keyboard control.</p>
+      </div>
+      <div class="feature-card">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <h3>Secure Storage</h3>
+        <p>API tokens stored in OS keychain. macOS builds signed and notarized by Apple.</p>
+      </div>
+      <div class="feature-card">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-1.5 4-3 4h-1.3c-.8 0-1.5.7-1.5 1.5 0 .4.2.8.4 1.1.3.3.4.6.4 1 0 .8-.7 1.4-1.5 1.4H12z"/>
+        </svg>
+        <h3>Themes</h3>
+        <p>Dark and light mode with 6 accent colors. Runs quietly in your system tray.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshots -->
+  <section id="screenshots" class="section">
+    <h2 class="section-title">See It In Action</h2>
+    <div class="screenshots-row">
+      <div class="screenshot-frame">
+        <div class="window-chrome" aria-hidden="true">
+          <span class="window-dot red"></span>
+          <span class="window-dot yellow"></span>
+          <span class="window-dot green"></span>
+        </div>
+        <div class="screenshot-placeholder">Torrents view — coming soon</div>
+      </div>
+      <div class="screenshot-frame">
+        <div class="window-chrome" aria-hidden="true">
+          <span class="window-dot red"></span>
+          <span class="window-dot yellow"></span>
+          <span class="window-dot green"></span>
+        </div>
+        <div class="screenshot-placeholder">Downloads view — coming soon</div>
+      </div>
+      <div class="screenshot-frame">
+        <div class="window-chrome" aria-hidden="true">
+          <span class="window-dot red"></span>
+          <span class="window-dot yellow"></span>
+          <span class="window-dot green"></span>
+        </div>
+        <div class="screenshot-placeholder">Search view — coming soon</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Downloads -->
+  <section id="downloads" class="section">
+    <h2 class="section-title">Download</h2>
+    <div class="downloads-grid">
+      <a class="download-row" data-os="mac" href="https://github.com/prjoni99/DebridDownloader/releases/latest" aria-label="Download DebridDownloader for macOS Apple Silicon (.dmg)">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83"/><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/></svg>
+        <div class="platform-info">
+          <div class="platform-name">macOS</div>
+          <div class="platform-arch">Apple Silicon (M1/M2/M3/M4)</div>
+        </div>
+        <span class="dl-link">.dmg</span>
+      </a>
+      <a class="download-row" data-os="mac" href="https://github.com/prjoni99/DebridDownloader/releases/latest" aria-label="Download DebridDownloader for macOS Intel (.dmg)">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83"/><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/></svg>
+        <div class="platform-info">
+          <div class="platform-name">macOS</div>
+          <div class="platform-arch">Intel</div>
+        </div>
+        <span class="dl-link">.dmg</span>
+      </a>
+      <a class="download-row" data-os="win" href="https://github.com/prjoni99/DebridDownloader/releases/latest" aria-label="Download DebridDownloader for Windows x64 (.exe)">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12V6.5l8-1.1V12H3zm10 0V5.2l8-1.2V12h-8zM3 13h8v6.6l-8-1.1V13zm10 0h8v6l-8 1.2V13z"/></svg>
+        <div class="platform-info">
+          <div class="platform-name">Windows</div>
+          <div class="platform-arch">x64</div>
+        </div>
+        <span class="dl-link">.exe installer</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Tech Strip -->
+  <div class="tech-strip">
+    <span>Tauri</span>
+    <span>React</span>
+    <span>Rust</span>
+    <span>TypeScript</span>
+    <span>Tailwind CSS</span>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    Built by <a href="https://github.com/prjoni99">Jonathan Vargas</a> &middot; <a href="https://github.com/prjoni99/DebridDownloader">GitHub</a> &middot; MIT License
+  </footer>
+
+  <script>
+(function() {
+  function detectOS() {
+    if (navigator.userAgentData && navigator.userAgentData.platform) {
+      var p = navigator.userAgentData.platform.toLowerCase();
+      if (p.includes('mac')) return 'mac';
+      if (p.includes('win')) return 'win';
+      if (p.includes('linux')) return 'linux';
+    }
+    var ua = (navigator.platform || navigator.userAgent || '').toLowerCase();
+    if (ua.includes('mac')) return 'mac';
+    if (ua.includes('win')) return 'win';
+    if (ua.includes('linux')) return 'linux';
+    return null;
+  }
+
+  var os = detectOS();
+  var btn = document.getElementById('hero-download');
+  var labels = { mac: 'Download for macOS', win: 'Download for Windows', linux: 'Download for Linux' };
+
+  if (os && labels[os]) {
+    document.getElementById('hero-download-label').textContent = labels[os];
+    var icon = btn.querySelector('.os-icon[data-os="' + os + '"]');
+    if (icon) icon.classList.add('visible');
+  }
+
+  var rows = document.querySelectorAll('.download-row[data-os]');
+  var found = false;
+  rows.forEach(function(row) {
+    if (!found && row.getAttribute('data-os') === os) {
+      found = true;
+      row.classList.add('recommended');
+      var badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = 'Recommended for you';
+      row.querySelector('.platform-info').appendChild(badge);
+    }
+  });
+})();
+  </script>
+</body>
+</html>
