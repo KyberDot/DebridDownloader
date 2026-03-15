@@ -95,24 +95,24 @@ export default function SettingsPage() {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="px-10 py-8" style={{ paddingRight: "100px", maxWidth: "860px" }}>
+      <div style={{ paddingLeft: "60px", paddingRight: "120px", paddingTop: "40px", paddingBottom: "60px", maxWidth: "900px" }}>
         <h2 className="text-[24px] font-bold text-[#f1f5f9] tracking-[-0.3px] mb-2">
           Settings
         </h2>
-        <p className="text-[14px] text-[#475569] mb-12">
+        <p className="text-[14px] text-[#475569] mb-16">
           Configure downloads, behavior, and appearance
         </p>
 
         {settings && (
           <>
             {/* ── Downloads ── */}
-            <section className="mb-14">
-              <h3 className="text-[12px] text-[#475569] uppercase tracking-[1.5px] mb-7 pb-3 border-b border-[rgba(255,255,255,0.04)]">
+            <section className="mb-20">
+              <h3 className="text-[12px] text-[#475569] uppercase tracking-[1.5px] mb-10 pb-4 border-b border-[rgba(255,255,255,0.04)]">
                 Downloads
               </h3>
 
               {/* Download folder */}
-              <div className="mb-8">
+              <div className="mb-12">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[15px] text-[#f1f5f9]">Download Folder</span>
                   {savedField === "download_folder" && (
@@ -137,7 +137,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Max concurrent */}
-              <div className="mb-8">
+              <div className="mb-12">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[15px] text-[#f1f5f9]">Max Concurrent Downloads</span>
                   {savedField === "max_concurrent_downloads" && (
@@ -184,8 +184,8 @@ export default function SettingsPage() {
             </section>
 
             {/* ── Behavior ── */}
-            <section className="mb-14">
-              <h3 className="text-[12px] text-[#475569] uppercase tracking-[1.5px] mb-7 pb-3 border-b border-[rgba(255,255,255,0.04)]">
+            <section className="mb-20">
+              <h3 className="text-[12px] text-[#475569] uppercase tracking-[1.5px] mb-10 pb-4 border-b border-[rgba(255,255,255,0.04)]">
                 Behavior
               </h3>
 
@@ -216,7 +216,7 @@ export default function SettingsPage() {
               />
 
               {/* Default sort */}
-              <div className="mb-8">
+              <div className="mb-12">
                 <span className="text-[15px] text-[#f1f5f9] block mb-1.5">Default sort order</span>
                 <p className="text-[14px] text-[#475569] mb-4">
                   How torrents are sorted when you open the app
@@ -244,12 +244,12 @@ export default function SettingsPage() {
             </section>
 
             {/* ── Appearance ── */}
-            <section className="mb-14">
-              <h3 className="text-[12px] text-[#475569] uppercase tracking-[1.5px] mb-7 pb-3 border-b border-[rgba(255,255,255,0.04)]">
+            <section className="mb-20">
+              <h3 className="text-[12px] text-[#475569] uppercase tracking-[1.5px] mb-10 pb-4 border-b border-[rgba(255,255,255,0.04)]">
                 Appearance
               </h3>
 
-              <div className="mb-8">
+              <div className="mb-12">
                 <span className="text-[15px] text-[#f1f5f9] block mb-1.5">Accent Color</span>
                 <p className="text-[14px] text-[#475569] mb-5">
                   Highlight color used for active states and buttons
@@ -296,8 +296,8 @@ export default function SettingsPage() {
             </section>
 
             {/* ── About ── */}
-            <section className="mb-14">
-              <h3 className="text-[12px] text-[#475569] uppercase tracking-[1.5px] mb-7 pb-3 border-b border-[rgba(255,255,255,0.04)]">
+            <section className="mb-20">
+              <h3 className="text-[12px] text-[#475569] uppercase tracking-[1.5px] mb-10 pb-4 border-b border-[rgba(255,255,255,0.04)]">
                 About
               </h3>
               <div className="bg-[#08080f] border border-[rgba(255,255,255,0.06)] rounded-xl p-6">
@@ -348,7 +348,7 @@ function ToggleRow({
   onChange: (value: boolean) => void;
 }) {
   return (
-    <div className="mb-8 flex items-start justify-between gap-6">
+    <div className="mb-12 flex items-start justify-between gap-6">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-[15px] text-[#f1f5f9]">{label}</span>
