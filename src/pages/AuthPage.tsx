@@ -91,26 +91,29 @@ export default function AuthPage() {
 
   return (
     <div className="flex items-center justify-center h-screen bg-[#08080f]">
-      <div className="w-full max-w-md p-8 bg-[#0f0f18] border border-[rgba(255,255,255,0.04)] rounded-xl">
+      <div className="w-full max-w-lg p-10 bg-[#0f0f18] border border-[rgba(255,255,255,0.06)] rounded-2xl">
         {/* Logo + Header */}
-        <div className="flex flex-col items-center mb-8 gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-[#10b981] rounded-lg flex items-center justify-center">
-              <span className="text-white text-[13px] font-bold">D</span>
+        <div className="flex flex-col items-center mb-10 gap-4">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}
+            >
+              <span className="text-white text-[18px] font-bold">D</span>
             </div>
-            <span className="text-[14px] font-semibold text-[#f1f5f9]">
+            <span className="text-[20px] font-semibold text-[#f1f5f9]">
               DebridDownloader
             </span>
           </div>
-          <p className="text-[#94a3b8] text-[13px]">
+          <p className="text-[#94a3b8] text-[15px]">
             Connect your Real-Debrid account
           </p>
         </div>
 
         {/* Mode toggle */}
-        <div className="flex mb-6 bg-[#08080f] rounded-lg p-1">
+        <div className="flex mb-8 bg-[#08080f] rounded-lg p-1.5">
           <button
-            className={`flex-1 py-2 text-[13px] rounded-md transition-colors ${
+            className={`flex-1 py-2.5 text-[15px] rounded-lg transition-colors ${
               mode === "token"
                 ? "bg-[rgba(16,185,129,0.12)] text-[#10b981] border border-[rgba(16,185,129,0.2)] font-semibold"
                 : "text-[#475569] hover:text-[#94a3b8]"
@@ -125,7 +128,7 @@ export default function AuthPage() {
             API Token
           </button>
           <button
-            className={`flex-1 py-2 text-[13px] rounded-md transition-colors ${
+            className={`flex-1 py-2.5 text-[15px] rounded-lg transition-colors ${
               mode === "oauth"
                 ? "bg-[rgba(16,185,129,0.12)] text-[#10b981] border border-[rgba(16,185,129,0.2)] font-semibold"
                 : "text-[#475569] hover:text-[#94a3b8]"
@@ -141,7 +144,7 @@ export default function AuthPage() {
 
         {mode === "token" ? (
           <div>
-            <label className="block text-[13px] text-[#94a3b8] mb-2">
+            <label className="block text-[15px] text-[#94a3b8] mb-2">
               API Token
             </label>
             <input
@@ -150,41 +153,42 @@ export default function AuthPage() {
               onChange={(e) => setToken(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleTokenLogin()}
               placeholder="Paste your token from real-debrid.com/apitoken"
-              className="w-full px-4 py-3 bg-[#08080f] border border-[rgba(255,255,255,0.06)] rounded-md text-[#f1f5f9] placeholder-[#374151] text-[13px] focus:outline-none focus:border-[rgba(16,185,129,0.3)] transition-all duration-150"
+              className="w-full px-4 py-3.5 bg-[#08080f] border border-[rgba(255,255,255,0.06)] rounded-lg text-[#f1f5f9] placeholder-[#374151] text-[15px] focus:outline-none focus:border-[rgba(16,185,129,0.3)] transition-all duration-150"
             />
-            <p className="text-[12px] text-[#475569] mt-2">
+            <p className="text-[14px] text-[#475569] mt-2.5">
               Get your token at{" "}
               <span className="text-[#10b981]">real-debrid.com/apitoken</span>
             </p>
             <button
               onClick={handleTokenLogin}
               disabled={loading}
-              className="w-full mt-4 py-3 bg-[#10b981] hover:bg-[#34d399] text-white font-medium rounded-md transition-colors disabled:opacity-50 text-[13px]"
+              className="w-full mt-5 py-3.5 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 text-[15px]"
+              style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}
             >
               {loading ? "Connecting..." : "Connect"}
             </button>
           </div>
         ) : (
           <div>
-            <p className="text-[13px] text-[#94a3b8] mb-4">
+            <p className="text-[15px] text-[#94a3b8] mb-5">
               Authenticate via Real-Debrid's device authorization. A browser
               will open for you to approve access.
             </p>
 
             {/* User code display */}
             {userCode && (
-              <div className="mb-4 p-4 bg-[#08080f] border border-[rgba(255,255,255,0.06)] rounded-lg text-center">
-                <p className="text-[12px] text-[#475569] mb-2">
+              <div className="mb-5 p-5 bg-[#08080f] border border-[rgba(255,255,255,0.06)] rounded-xl text-center">
+                <p className="text-[14px] text-[#475569] mb-3">
                   Enter this code on the Real-Debrid page:
                 </p>
-                <p className="text-[#10b981] text-2xl font-mono tracking-widest">
+                <p className="text-[#10b981] text-3xl font-mono tracking-widest">
                   {userCode}
                 </p>
               </div>
             )}
 
             {oauthStatus && (
-              <p className="text-[#10b981] text-[13px] mb-4 text-center">
+              <p className="text-[#10b981] text-[15px] mb-5 text-center">
                 {oauthStatus}
               </p>
             )}
@@ -192,7 +196,8 @@ export default function AuthPage() {
             <button
               onClick={handleOAuthLogin}
               disabled={loading}
-              className="w-full py-3 bg-[#10b981] hover:bg-[#34d399] text-white font-medium rounded-md transition-colors disabled:opacity-50 text-[13px]"
+              className="w-full py-3.5 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 text-[15px]"
+              style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}
             >
               {loading ? "Waiting for authorization..." : "Start OAuth Login"}
             </button>
@@ -200,7 +205,7 @@ export default function AuthPage() {
         )}
 
         {error && (
-          <p className="mt-4 text-[#ef4444] text-[13px] text-center">{error}</p>
+          <p className="mt-5 text-[#ef4444] text-[15px] text-center">{error}</p>
         )}
       </div>
     </div>
