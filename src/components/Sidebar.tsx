@@ -147,7 +147,7 @@ export default function Sidebar({
                     fontSize: "14px",
                     fontWeight: isActive ? 500 : 400,
                     backgroundColor: isActive
-                      ? "var(--accent-bg)0.08)"
+                      ? "var(--accent-bg-light)"
                       : "transparent",
                     color: isActive ? "var(--accent)" : "var(--theme-text-muted)",
                   }}

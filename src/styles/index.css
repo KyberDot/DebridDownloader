@@ -27,7 +27,9 @@
 :root {
   --accent: #10b981;
   --accent-hover: #34d399;
-  --accent-bg: rgba(16,185,129,;
+  --accent-bg-subtle: rgba(16,185,129,0.04);
+  --accent-bg-light: rgba(16,185,129,0.08);
+  --accent-bg-medium: rgba(16,185,129,0.1);
 
   /* Theme defaults (dark) */
   --theme-bg: #08080f;
@@ -86,7 +88,7 @@ body {
 }
 
 ::selection {
-  background: var(--accent-bg)0.3);
+  background: var(--accent-bg-medium);
 }
 
 /* Custom checkbox */

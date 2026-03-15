@@ -272,7 +272,7 @@ export default function SettingsPage() {
                         onClick={() => applyFrontend({ app_theme: opt.id })}
                         className="flex-1 flex items-center justify-center gap-3 py-4 rounded-xl transition-all text-[15px] font-medium"
                         style={{
-                          background: isSelected ? "var(--accent-bg)0.1)" : "var(--theme-bg)",
+                          background: isSelected ? "var(--accent-bg-medium)" : "var(--theme-bg)",
                           border: isSelected ? `2px solid var(--accent)` : "2px solid var(--theme-border)",
                           color: isSelected ? "var(--accent)" : "var(--theme-text-muted)",
                         }}

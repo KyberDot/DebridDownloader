@@ -120,7 +120,7 @@ export default function DataTable<T>({
               borderBottom: "1px solid var(--theme-hover)",
               background:
                 selectedId === id
-                  ? "var(--accent-bg)0.04)"
+                  ? "var(--accent-bg-subtle)"
                   : undefined,
             }}
             onMouseEnter={(e) => {
@@ -132,7 +132,7 @@ export default function DataTable<T>({
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLElement).style.background =
                 selectedId === id
-                  ? "var(--accent-bg)0.04)"
+                  ? "var(--accent-bg-subtle)"
                   : "transparent";
             }}
           >

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 
-const ACCENT_COLORS: Record<string, { primary: string; hover: string; bg: string }> = {
-  emerald: { primary: "#10b981", hover: "#34d399", bg: "rgba(16,185,129," },
-  blue:    { primary: "#3b82f6", hover: "#60a5fa", bg: "rgba(59,130,246," },
-  violet:  { primary: "#8b5cf6", hover: "#a78bfa", bg: "rgba(139,92,246," },
-  rose:    { primary: "#f43f5e", hover: "#fb7185", bg: "rgba(244,63,94," },
-  amber:   { primary: "#f59e0b", hover: "#fbbf24", bg: "rgba(245,158,11," },
-  cyan:    { primary: "#06b6d4", hover: "#22d3ee", bg: "rgba(6,182,212," },
+const ACCENT_COLORS: Record<string, { primary: string; hover: string; rgb: string }> = {
+  emerald: { primary: "#10b981", hover: "#34d399", rgb: "16,185,129" },
+  blue:    { primary: "#3b82f6", hover: "#60a5fa", rgb: "59,130,246" },
+  violet:  { primary: "#8b5cf6", hover: "#a78bfa", rgb: "139,92,246" },
+  rose:    { primary: "#f43f5e", hover: "#fb7185", rgb: "244,63,94" },
+  amber:   { primary: "#f59e0b", hover: "#fbbf24", rgb: "245,158,11" },
+  cyan:    { primary: "#06b6d4", hover: "#22d3ee", rgb: "6,182,212" },
 };
 
 const THEMES = {
@@ -73,7 +73,9 @@ function applyAccent(name: string) {
   const root = document.documentElement;
   root.style.setProperty("--accent", colors.primary);
   root.style.setProperty("--accent-hover", colors.hover);
-  root.style.setProperty("--accent-bg", colors.bg);
+  root.style.setProperty("--accent-bg-subtle", `rgba(${colors.rgb},0.04)`);
+  root.style.setProperty("--accent-bg-light", `rgba(${colors.rgb},0.08)`);
+  root.style.setProperty("--accent-bg-medium", `rgba(${colors.rgb},0.1)`);
 }
 
 function applyTheme(mode: string) {
