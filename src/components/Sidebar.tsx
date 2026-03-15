@@ -138,7 +138,6 @@ export default function Sidebar({
             {section.items.map((item) => {
               const isActive =
                 item.id === activeView &&
-                item.id !== "search" &&
                 item.id !== "settings";
               return (
                 <button

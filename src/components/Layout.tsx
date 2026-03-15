@@ -1,12 +1,10 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import CommandPalette from "./CommandPalette";
 import SettingsModal from "./SettingsModal";
 import { DownloadTasksProvider } from "../hooks/useDownloadTasks";
 
 export default function Layout() {
-  const [showSearch, setShowSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
   const navigate = useNavigate();
@@ -16,23 +14,19 @@ export default function Layout() {
     ? "downloads"
     : location.pathname.startsWith("/completed")
     ? "completed"
+    : location.pathname.startsWith("/search")
+    ? "search"
     : "torrents";
 
   const handleNavigate = (view: string) => {
     navigate("/" + view);
   };
 
-  const handleSelectTorrent = (id: string) => {
-    navigate("/torrents");
-    window.dispatchEvent(new CustomEvent("torrent-select", { detail: id }));
-    setShowSearch(false);
-  };
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey && e.key === "k") {
         e.preventDefault();
-        setShowSearch((prev) => !prev);
+        navigate("/search");
         return;
       }
 
@@ -43,9 +37,7 @@ export default function Layout() {
       }
 
       if (e.key === "Escape") {
-        if (showSearch) {
-          setShowSearch(false);
-        } else if (showSettings) {
+        if (showSettings) {
           setShowSettings(false);
         } else {
           window.dispatchEvent(new Event("deselect-item"));
@@ -72,7 +64,7 @@ export default function Layout() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showSearch, showSettings]);
+  }, [showSettings, navigate]);
 
   return (
     <DownloadTasksProvider>
@@ -80,18 +72,12 @@ export default function Layout() {
         <Sidebar
           activeView={activeView}
           onNavigate={handleNavigate}
-          onSearchOpen={() => setShowSearch(true)}
+          onSearchOpen={() => navigate("/search")}
           onSettingsOpen={() => setShowSettings(true)}
         />
         <main className="flex-1 overflow-hidden flex flex-col" style={{ background: "#0a0a12" }}>
           <Outlet />
         </main>
-        {showSearch && (
-          <CommandPalette
-            onClose={() => setShowSearch(false)}
-            onSelectTorrent={handleSelectTorrent}
-          />
-        )}
         {showSettings && (
           <SettingsModal onClose={() => setShowSettings(false)} />
         )}

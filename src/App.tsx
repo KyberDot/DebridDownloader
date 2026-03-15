@@ -14,6 +14,7 @@ import AuthPage from "./pages/AuthPage";
 import TorrentsPage from "./pages/TorrentsPage";
 import DownloadsPage from "./pages/DownloadsPage";
 import CompletedPage from "./pages/CompletedPage";
+import SearchPage from "./pages/SearchPage";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -123,6 +124,7 @@ function App() {
                 <Route path="/torrents" element={<TorrentsPage />} />
                 <Route path="/downloads" element={<DownloadsPage />} />
                 <Route path="/completed" element={<CompletedPage />} />
+                <Route path="/search" element={<SearchPage />} />
                 <Route path="*" element={<Navigate to="/torrents" replace />} />
               </Route>
             </>
