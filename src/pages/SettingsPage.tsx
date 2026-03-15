@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { getSettings, updateSettings } from "../api/settings";
 import type { AppSettings } from "../types";
 import { open } from "@tauri-apps/plugin-dialog";
+import { enable as enableAutostart, disable as disableAutostart, isEnabled as isAutostartEnabled } from "@tauri-apps/plugin-autostart";
 import { ACCENT_COLORS } from "../hooks/useAccentColor";
 
 interface FrontendSettings {
@@ -41,10 +42,15 @@ export default function SettingsPage() {
   const [savedField, setSavedField] = useState<string | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Load backend settings + autostart status
   useEffect(() => {
-    getSettings()
-      .then((s) => setSettings(s))
-      .finally(() => setLoading(false));
+    Promise.all([
+      getSettings(),
+      isAutostartEnabled().catch(() => false),
+    ]).then(([s, autostart]) => {
+      setSettings(s);
+      setFrontend((prev) => ({ ...prev, launch_at_login: autostart }));
+    }).finally(() => setLoading(false));
   }, []);
 
   function markSaved(field: string) {
@@ -189,7 +195,15 @@ export default function SettingsPage() {
                 description="Start DebridDownloader when you log in to your computer"
                 checked={frontend.launch_at_login}
                 accentColor={accentColor}
-                onChange={(v) => applyFrontend({ launch_at_login: v })}
+                onChange={async (v) => {
+                  try {
+                    if (v) await enableAutostart();
+                    else await disableAutostart();
+                    applyFrontend({ launch_at_login: v });
+                  } catch (e) {
+                    console.error("Autostart error:", e);
+                  }
+                }}
               />
 
               {/* Notify on complete */}
