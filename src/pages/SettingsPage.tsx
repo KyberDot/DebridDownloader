@@ -329,9 +329,21 @@ export default function SettingsPage() {
                     </button>
                   </div>
                 </div>
-                <p className="text-[13px] text-[var(--theme-text-ghost)] mt-3">
-                  <strong>API</strong> — sites with a TPB-compatible JSON API &nbsp;·&nbsp; <strong>HTML</strong> — sites with 1337x-style HTML tables
-                </p>
+                <div className="mt-5 pt-5" style={{ borderTop: "1px solid var(--theme-border-subtle)" }}>
+                  <div className="text-[13px] text-[var(--theme-text-muted)] font-medium mb-3">How it works</div>
+                  <div className="space-y-3 text-[13px] text-[var(--theme-text-ghost)]">
+                    <div className="p-3 rounded-lg" style={{ background: "var(--theme-bg-content)" }}>
+                      <div className="text-[var(--theme-text-secondary)] font-medium mb-1">API (TPB-style)</div>
+                      <p>For sites that mirror the Pirate Bay API. Enter the base domain — the app queries <code className="text-[var(--theme-text-muted)] px-1 py-0.5 rounded" style={{ background: "var(--theme-selected)" }}>/q.php?q=search_term</code> and expects a JSON array of results.</p>
+                      <p className="mt-1.5 text-[var(--theme-text-muted)]">Example URL: <code className="px-1 py-0.5 rounded" style={{ background: "var(--theme-selected)" }}>https://apibay.org</code></p>
+                    </div>
+                    <div className="p-3 rounded-lg" style={{ background: "var(--theme-bg-content)" }}>
+                      <div className="text-[var(--theme-text-secondary)] font-medium mb-1">HTML (1337x-style)</div>
+                      <p>For sites that use a 1337x-style layout with HTML tables. Enter the base domain — the app scrapes search result pages and detail pages for magnet links.</p>
+                      <p className="mt-1.5 text-[var(--theme-text-muted)]">Example URL: <code className="px-1 py-0.5 rounded" style={{ background: "var(--theme-selected)" }}>https://www.1337x.to</code></p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 
