@@ -16,12 +16,12 @@
 | | Feature | Description |
 |---|---------|-------------|
 | 🧲 | **Torrent Management** | Add magnets or `.torrent` files, select files, monitor progress |
-| 🔍 | **Tracker Search** | Search multiple torrent trackers and add results with one click |
+| 🔍 | **User-Configured Search** | Add your own tracker sources in Settings — the app ships with none |
 | 📥 | **Download Engine** | Multi-threaded downloads with real-time speed, ETA, and progress |
 | 🎯 | **System Tray** | Runs in the background with menu bar / system tray icon |
 | 🚀 | **Launch at Login** | Optionally start when your computer boots |
 | ⌨️ | **Keyboard First** | `⌘K` search, `⌘R` refresh, arrow nav, `Enter` to download |
-| 🌗 | **Dark & Light Mode** | Full theme support with smooth transitions |
+| 🌗 | **Dark & Light Mode** | Full theme support with CSS variable-driven theming |
 | 🎨 | **6 Accent Colors** | Emerald, Blue, Violet, Rose, Amber, Cyan |
 | 🔐 | **Signed & Notarized** | macOS builds signed with Developer ID & notarized by Apple |
 | 💾 | **Secure Token Storage** | API tokens stored in OS keychain, not plain text |
@@ -61,7 +61,8 @@
 3. 🔐 Connect your Real-Debrid account:
    - **API Token** — paste from [real-debrid.com/apitoken](https://real-debrid.com/apitoken)
    - **OAuth Login** — authorize via browser (device code flow)
-4. 🧲 Start adding torrents and downloading!
+4. ⚙️ (Optional) Add tracker sources in **Settings > Trackers** to enable search
+5. 🧲 Start adding torrents and downloading!
 
 ---
 
@@ -70,8 +71,19 @@
 ### 🧲 Adding Torrents
 
 - Click **+ Add Torrent** to paste a magnet link or upload a `.torrent` file
-- Use **Search** (`⌘K`) to find torrents across multiple trackers
+- Use **Search** (`⌘K`) to find torrents across your configured trackers
 - Paste a magnet link directly into the search bar — it gets added instantly
+
+### 🔍 Configuring Search Trackers
+
+The app **ships with no trackers built in**. You add your own sources in **Settings > Trackers**:
+
+1. Go to **Settings** in the sidebar
+2. Scroll to the **Trackers** section
+3. Enter a name, base URL, and click **Add**
+4. The app supports sites with a TPB-compatible JSON API (`/q.php?q=query`)
+
+You can add multiple trackers — searches run in parallel across all enabled sources. Each tracker can be toggled on/off individually.
 
 ### 📥 Managing Downloads
 
@@ -100,10 +112,25 @@
 | 🔢 Max concurrent | Control parallel downloads (1-10) |
 | 📂 Subfolders | Organize files into torrent-named folders |
 | ⚡ Auto-start | Automatically download when torrents are ready |
+| 🔍 Trackers | Add/remove/toggle your own torrent search sources |
 | 🚀 Launch at login | Start with your computer |
 | 🔔 Notifications | Get notified when downloads complete |
 | 🌗 Theme | Dark or light mode |
 | 🎨 Accent color | Emerald 💚 Blue 💙 Violet 💜 Rose 🩷 Amber 🧡 Cyan 🩵 |
+
+---
+
+## ⚖️ Legal
+
+DebridDownloader is a **download management tool**. It:
+
+- ✅ Provides an interface to the [Real-Debrid API](https://api.real-debrid.com/) — a legitimate paid service
+- ✅ Ships with **zero torrent tracker sources** — users bring their own
+- ✅ Does not host, index, or distribute any copyrighted content
+- ✅ Does not include any hardcoded tracker URLs, scraper targets, or search endpoints
+- ✅ Functions similarly to other download managers like JDownloader, Internet Download Manager, or aria2
+
+The app is a neutral tool. Users are responsible for how they use it and what sources they configure. The developers do not endorse or encourage piracy.
 
 ---
 
@@ -181,7 +208,7 @@ npx tsc --noEmit
 | `hooks/` | 🪝 Auth context, download polling, theme/accent management |
 | `api/` | 📡 Thin `invoke()` wrappers — one file per domain |
 | `types/` | 📝 TypeScript interfaces mirroring Rust types |
-| `styles/` | 🎨 Tailwind v4 theme + CSS custom properties |
+| `styles/` | 🎨 Tailwind v4 theme + CSS custom properties for theming |
 
 ### ⚙️ Backend (`src-tauri/src/`)
 
@@ -192,7 +219,7 @@ npx tsc --noEmit
 | `api/` | 🌐 Real-Debrid REST API client |
 | `commands/` | 🔌 Tauri `#[command]` bridge functions |
 | `downloader.rs` | 📥 Download engine with progress events + cancellation |
-| `scrapers/` | 🔍 Torrent tracker search aggregation |
+| `scrapers/` | 🔍 User-configurable tracker search (API-based) |
 
 ---
 
