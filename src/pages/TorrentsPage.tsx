@@ -297,10 +297,10 @@ export default function TorrentsPage() {
         actions={
           <button
             onClick={() => setShowAdd(true)}
-            className="text-white rounded-lg px-6 py-3 text-[15px] font-semibold transition-colors shrink-0 whitespace-nowrap"
+            className="text-white rounded-lg px-8 py-3 text-[15px] font-semibold transition-colors shrink-0 whitespace-nowrap"
             style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}
           >
-            + Add
+            + Add Torrent
           </button>
         }
       />

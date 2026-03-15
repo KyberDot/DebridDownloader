@@ -16,7 +16,7 @@ export default function TableToolbar({
   actions,
 }: TableToolbarProps) {
   return (
-    <div className="flex justify-between items-center px-7 py-5 pr-10 shrink-0">
+    <div className="flex justify-between items-center px-7 py-5 pr-14 shrink-0">
       <div className="min-w-0">
         <h2 className="text-[22px] font-bold text-[#f1f5f9] tracking-[-0.3px] m-0">
           {title}
