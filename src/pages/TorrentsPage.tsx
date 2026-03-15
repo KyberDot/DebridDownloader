@@ -490,7 +490,17 @@ export default function TorrentsPage() {
             onClick={() => {
               const torrent = torrents.find((t) => t.id === contextMenu.torrentId);
               setContextMenu(null);
-              if (torrent) navigator.clipboard.writeText("magnet:?xt=urn:btih:" + torrent.hash);
+              if (torrent) {
+                const text = "magnet:?xt=urn:btih:" + torrent.hash;
+                const el = document.createElement("textarea");
+                el.value = text;
+                el.style.position = "fixed";
+                el.style.opacity = "0";
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand("copy");
+                document.body.removeChild(el);
+              }
             }}
           >
             Copy Magnet
