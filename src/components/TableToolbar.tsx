@@ -32,18 +32,19 @@ export default function TableToolbar({
             value={filterValue}
             onChange={(e) => onFilterChange(e.target.value)}
             placeholder={filterPlaceholder}
-            className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] rounded-lg py-2.5 pl-9 pr-4 text-[14px] text-[#f1f5f9] w-[220px] outline-none placeholder:text-[#374151] focus:border-[rgba(16,185,129,0.3)] transition-colors"
+            style={{ paddingLeft: "36px" }}
+            className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] rounded-lg py-2.5 pr-4 text-[14px] text-[#f1f5f9] w-[220px] outline-none placeholder:text-[#374151] focus:border-[rgba(16,185,129,0.3)] transition-colors"
           />
           <svg
             width="14"
             height="14"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#475569"
+            stroke="#374151"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            className="absolute left-[12px] top-1/2 -translate-y-1/2 pointer-events-none"
           >
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
