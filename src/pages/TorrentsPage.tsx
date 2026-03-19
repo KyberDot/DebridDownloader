@@ -36,8 +36,8 @@ function statusBadgeClass(status: string): string {
   }
 }
 
-const INLINE_VIDEO_EXTS = [".mp4", ".webm", ".mov", ".m4v"];
-const EXTERNAL_VIDEO_EXTS = [".mkv", ".avi", ".wmv", ".flv", ".ts"];
+const INLINE_VIDEO_EXTS = [".mp4", ".webm", ".mov", ".m4v", ".mkv"];
+const EXTERNAL_VIDEO_EXTS = [".avi", ".wmv", ".flv", ".ts"];
 
 const getFileExt = (path: string) => {
   const dot = path.lastIndexOf(".");
