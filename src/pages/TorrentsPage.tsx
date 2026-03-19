@@ -36,6 +36,17 @@ function statusBadgeClass(status: string): string {
   }
 }
 
+const INLINE_VIDEO_EXTS = [".mp4", ".webm", ".mov", ".m4v"];
+const EXTERNAL_VIDEO_EXTS = [".mkv", ".avi", ".wmv", ".flv", ".ts"];
+
+const getFileExt = (path: string) => {
+  const dot = path.lastIndexOf(".");
+  return dot >= 0 ? path.slice(dot).toLowerCase() : "";
+};
+
+const isInlineVideo = (path: string) => INLINE_VIDEO_EXTS.includes(getFileExt(path));
+const isExternalVideo = (path: string) => EXTERNAL_VIDEO_EXTS.includes(getFileExt(path));
+
 export default function TorrentsPage() {
   const [torrents, setTorrents] = useState<Torrent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,17 +73,6 @@ export default function TorrentsPage() {
   const [streamSessionId, setStreamSessionId] = useState<string | null>(null);
   const [streamLoading, setStreamLoading] = useState(false);
   const [streamError, setStreamError] = useState<string | null>(null);
-
-  const INLINE_VIDEO_EXTS = [".mp4", ".webm", ".mov", ".m4v"];
-  const EXTERNAL_VIDEO_EXTS = [".mkv", ".avi", ".wmv", ".flv", ".ts"];
-
-  const getFileExt = (path: string) => {
-    const dot = path.lastIndexOf(".");
-    return dot >= 0 ? path.slice(dot).toLowerCase() : "";
-  };
-
-  const isInlineVideo = (path: string) => INLINE_VIDEO_EXTS.includes(getFileExt(path));
-  const isExternalVideo = (path: string) => EXTERNAL_VIDEO_EXTS.includes(getFileExt(path));
 
   const handlePlayInline = async (fileId: number) => {
     if (!detailInfo) return;
@@ -109,7 +109,7 @@ export default function TorrentsPage() {
     try {
       const result = await getStreamUrl(detailInfo.id, fileId);
       await openUrl(result.stream_url);
-      setTimeout(() => cleanupStreamSession(result.session_id).catch(() => {}), 5000);
+      // Don't immediately clean up — external player needs the session alive for streaming
     } catch (e) {
       setStreamError(e instanceof Error ? e.message : String(e));
     }
@@ -423,7 +423,7 @@ export default function TorrentsPage() {
                 </h3>
               </div>
               <button
-                onClick={() => setSelectedId(null)}
+                onClick={() => { handleStopStream(); setSelectedId(null); }}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)] shrink-0"
                 style={{ background: "var(--theme-selected)" }}
               >
