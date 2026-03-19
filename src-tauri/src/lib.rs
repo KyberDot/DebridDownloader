@@ -74,7 +74,7 @@ pub fn run() {
             let state: tauri::State<'_, AppState> = app.state();
             let sessions = state.stream_sessions.clone();
             let port_holder = state.streaming_port.clone();
-            tokio::spawn(async move {
+            tauri::async_runtime::spawn(async move {
                 if let Err(e) = streaming::start_streaming_server(sessions, port_holder).await {
                     log::error!("Streaming server failed: {}", e);
                 }
