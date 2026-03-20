@@ -230,7 +230,7 @@ export default function AuthPage() {
             onClick={async () => {
               localStorage.removeItem("previous-provider");
               await switchProvider(previousProvider);
-              window.location.reload();
+              window.location.href = "/settings";
             }}
             className="w-full mt-6 py-3 text-[var(--theme-text-muted)] hover:text-[var(--theme-text-secondary)] text-[14px] transition-colors"
           >
