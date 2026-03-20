@@ -24,7 +24,6 @@ export default function DownloadsPage() {
   const [filter, setFilter] = useState("");
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; taskId: string } | null>(null);
 
   // Only show non-completed tasks
   const activeTasks = useMemo(() => tasks.filter((t) => t.status !== "Completed"), [tasks]);
@@ -57,27 +56,34 @@ export default function DownloadsPage() {
 
   useEffect(() => {
     const handler = () => {
-      if (selectedId) downloadsApi.cancelDownload(selectedId).catch(() => {});
+      if (!selectedId) return;
+      const task = activeTasks.find((t) => t.id === selectedId);
+      if (task && isActive(task.status)) {
+        downloadsApi.cancelDownload(selectedId).catch(() => {});
+      } else {
+        downloadsApi.removeDownload(selectedId).catch(() => {});
+        setSelectedId(null);
+      }
     };
     window.addEventListener("delete-selected", handler);
     return () => window.removeEventListener("delete-selected", handler);
-  }, [selectedId]);
+  }, [selectedId, activeTasks]);
 
-  // Close context menu
-  useEffect(() => {
-    if (!contextMenu) return;
-    const handleClick = () => setContextMenu(null);
-    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") setContextMenu(null); };
-    document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [contextMenu]);
 
   const handleCancel = async (id: string) => {
     try { await downloadsApi.cancelDownload(id); } catch { /* ignore */ }
+  };
+
+  const handleRemove = async (id: string) => {
+    try { await downloadsApi.removeDownload(id); } catch { /* ignore */ }
+  };
+
+  const handleCancelAll = async () => {
+    try { await downloadsApi.cancelAllDownloads(); setSelectedId(null); } catch { /* ignore */ }
+  };
+
+  const handleClearInactive = async () => {
+    try { await downloadsApi.clearCompletedDownloads(); setSelectedId(null); } catch { /* ignore */ }
   };
 
   const columns: Column<DownloadTask>[] = [
@@ -143,7 +149,7 @@ export default function DownloadsPage() {
           {isActive(t.status) ? (
             <button
               onClick={() => handleCancel(t.id)}
-              className="w-[30px] h-[30px] rounded-md flex items-center justify-center text-[#ef4444]"
+              className="w-[30px] h-[30px] rounded-md flex items-center justify-center text-[#ef4444] cursor-pointer"
               style={{ background: "rgba(239,68,68,0.08)" }}
               title="Cancel"
             >
@@ -151,14 +157,18 @@ export default function DownloadsPage() {
             </button>
           ) : (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setContextMenu({ x: e.clientX, y: e.clientY, taskId: t.id });
-              }}
-              className="w-[30px] h-[30px] rounded-md flex items-center justify-center text-[var(--theme-text-muted)]"
-              style={{ background: "var(--theme-selected)" }}
+              onClick={() => handleRemove(t.id)}
+              className="w-[30px] h-[30px] rounded-md flex items-center justify-center text-[#ef4444] cursor-pointer"
+              style={{ background: "rgba(239,68,68,0.08)" }}
+              title="Remove"
             >
-              ···
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+              </svg>
             </button>
           )}
         </div>
@@ -174,6 +184,28 @@ export default function DownloadsPage() {
         filterPlaceholder="Filter downloads..."
         filterValue={filter}
         onFilterChange={setFilter}
+        actions={
+          activeTasks.length > 0 ? (
+            <div className="flex items-center gap-2">
+              {activeTasks.some((t) => !isActive(t.status)) && (
+                <button
+                  onClick={handleClearInactive}
+                  className="px-4 py-2 rounded-lg text-[13px] font-medium text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)] transition-colors cursor-pointer"
+                  style={{ background: "var(--theme-selected)" }}
+                >
+                  Clear Inactive
+                </button>
+              )}
+              <button
+                onClick={handleCancelAll}
+                className="px-4 py-2 rounded-lg text-[13px] font-medium text-[#ef4444] hover:text-[#dc2626] transition-colors cursor-pointer"
+                style={{ background: "rgba(239,68,68,0.08)" }}
+              >
+                Cancel All
+              </button>
+            </div>
+          ) : null
+        }
       />
 
       <DataTable
@@ -181,7 +213,6 @@ export default function DownloadsPage() {
         data={filtered}
         rowKey={(t) => t.id}
         onRowClick={(t) => setSelectedId(t.id)}
-        onRowContextMenu={(t, e) => setContextMenu({ x: e.clientX, y: e.clientY, taskId: t.id })}
         selectedId={selectedId}
         sortKey={sortKey}
         sortDirection={sortDirection}
@@ -278,37 +309,6 @@ export default function DownloadsPage() {
         })()}
       </SlideOverPanel>
 
-      {/* Context menu */}
-      {contextMenu && (() => {
-        const menuTask = filtered.find((t) => t.id === contextMenu.taskId);
-        const menuActive = menuTask ? isActive(menuTask.status) : false;
-        return (
-          <div
-            className="fixed bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-lg py-1.5 w-52 z-[60] shadow-[0_8px_32px_var(--theme-shadow)]"
-            style={{
-              left: Math.min(contextMenu.x, window.innerWidth - 240),
-              top: Math.min(contextMenu.y, window.innerHeight - 120),
-            }}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            {menuActive ? (
-              <button
-                className="w-full text-left px-4 py-2.5 text-[15px] text-[#ef4444] cursor-pointer hover:bg-[var(--theme-selected)] transition-colors"
-                onClick={() => { setContextMenu(null); handleCancel(contextMenu.taskId); }}
-              >
-                Cancel
-              </button>
-            ) : (
-              <button
-                className="w-full text-left px-4 py-2.5 text-[15px] text-[#ef4444] cursor-pointer hover:bg-[var(--theme-selected)] transition-colors"
-                onClick={() => { setContextMenu(null); /* hide from list client-side */ }}
-              >
-                Remove
-              </button>
-            )}
-          </div>
-        );
-      })()}
     </>
   );
 }

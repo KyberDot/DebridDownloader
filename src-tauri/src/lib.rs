@@ -105,6 +105,8 @@ pub fn run() {
             commands::downloads::unrestrict_torrent_links,
             commands::downloads::start_downloads,
             commands::downloads::cancel_download,
+            commands::downloads::remove_download,
+            commands::downloads::cancel_all_downloads,
             commands::downloads::get_download_tasks,
             commands::downloads::clear_completed_downloads,
             commands::downloads::get_download_history,

@@ -31,6 +31,14 @@ export async function cancelDownload(id: string): Promise<void> {
   return invoke("cancel_download", { id });
 }
 
+export async function removeDownload(id: string): Promise<void> {
+  return invoke("remove_download", { id });
+}
+
+export async function cancelAllDownloads(): Promise<void> {
+  return invoke("cancel_all_downloads");
+}
+
 export async function getDownloadTasks(): Promise<DownloadTask[]> {
   return invoke("get_download_tasks");
 }

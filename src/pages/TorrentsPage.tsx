@@ -57,7 +57,11 @@ export default function TorrentsPage() {
   const [filter, setFilter] = useState("");
   const [sortKey, setSortKey] = useState<string | null>("added");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; torrentId: string } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    torrentId: string;
+  } | null>(null);
 
   // Slide-over detail state
   const [detailInfo, setDetailInfo] = useState<TorrentInfo | null>(null);
@@ -325,13 +329,13 @@ export default function TorrentsPage() {
     {
       key: "actions",
       header: "",
-      width: "80px",
+      width: "120px",
       render: (t) => (
         <div className="flex gap-1.5 justify-end" onClick={(e) => e.stopPropagation()}>
           {t.status === "downloaded" && (
             <button
               onClick={() => handleDownloadTorrent(t.id)}
-              className="w-[30px] h-[30px] rounded-md flex items-center justify-center"
+              className="w-[30px] h-[30px] rounded-md flex items-center justify-center cursor-pointer"
               style={{ background: "rgba(16,185,129,0.1)", color: "#10b981" }}
               title="Download"
             >
@@ -343,15 +347,32 @@ export default function TorrentsPage() {
             </button>
           )}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setContextMenu({ x: e.clientX, y: e.clientY, torrentId: t.id });
+            onClick={() => {
+              const text = "magnet:?xt=urn:btih:" + t.hash;
+              navigator.clipboard.writeText(text).catch(() => {});
             }}
-            className="w-[30px] h-[30px] rounded-md flex items-center justify-center text-[var(--theme-text-muted)]"
+            className="w-[30px] h-[30px] rounded-md flex items-center justify-center text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)] cursor-pointer"
             style={{ background: "var(--theme-selected)" }}
-            title="More"
+            title="Copy Magnet"
           >
-            ···
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </button>
+          <button
+            onClick={() => { if (window.confirm("Delete this torrent?")) handleDelete(t.id); }}
+            className="w-[30px] h-[30px] rounded-md flex items-center justify-center text-[#ef4444] cursor-pointer"
+            style={{ background: "rgba(239,68,68,0.08)" }}
+            title="Delete"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              <path d="M10 11v6" />
+              <path d="M14 11v6" />
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+            </svg>
           </button>
         </div>
       ),

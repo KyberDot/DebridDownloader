@@ -156,6 +156,22 @@ pub async fn cancel_download(
     Ok(())
 }
 
+/// Cancel all active downloads and clear everything
+#[tauri::command]
+pub async fn cancel_all_downloads(
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    // Cancel all active downloads
+    let tokens = state.cancel_tokens.read().await;
+    for tx in tokens.values() {
+        let _ = tx.send(true);
+    }
+    drop(tokens);
+    state.cancel_tokens.write().await.clear();
+    state.active_downloads.write().await.clear();
+    Ok(())
+}
+
 /// Get all active/recent download tasks
 #[tauri::command]
 pub async fn get_download_tasks(
@@ -163,6 +179,21 @@ pub async fn get_download_tasks(
 ) -> Result<Vec<DownloadTask>, String> {
     let downloads = state.active_downloads.read().await;
     Ok(downloads.values().cloned().collect())
+}
+
+/// Remove a single download from the list
+#[tauri::command]
+pub async fn remove_download(
+    state: State<'_, AppState>,
+    id: String,
+) -> Result<(), String> {
+    // Cancel if still active
+    if let Some(tx) = state.cancel_tokens.read().await.get(&id) {
+        let _ = tx.send(true);
+    }
+    state.cancel_tokens.write().await.remove(&id);
+    state.active_downloads.write().await.remove(&id);
+    Ok(())
 }
 
 /// Clear completed/failed/cancelled downloads from the list
