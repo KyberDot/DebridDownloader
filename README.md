@@ -28,9 +28,9 @@
 
 ---
 
-## 📸 Screenshots
+## 🌐 Website
 
-<!-- TODO: Add screenshots -->
+**[casavargas.app/DebridDownloader](https://casavargas.app/DebridDownloader/)** — screenshots, download links, and feature overview.
 
 ---
 
@@ -239,6 +239,15 @@ npx tsc --noEmit
 ## 📄 License
 
 GPL-3.0 — see [LICENSE](LICENSE) for details.
+
+---
+
+## 🏠 More from Casa Vargas
+
+| | Project | Description |
+|---|---------|-------------|
+| 📄 | **[OneScribe](https://getonescribe.app)** | AI-powered document scanner for iOS — 83 document types, fully on-device processing, no cloud required |
+| 🌐 | **[casavargas.app](https://casavargas.app)** | All our projects and apps |
 
 ---
 
