@@ -14,6 +14,7 @@ pub struct ProviderInfo {
 #[serde(rename_all = "snake_case")]
 pub enum AuthMethod {
     ApiKey,
+    #[serde(rename = "oauth_device")]
     OAuthDevice,
 }
 
