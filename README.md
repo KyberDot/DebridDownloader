@@ -1,13 +1,15 @@
 # ⚡ DebridDownloader
 
-> 🚀 A blazing-fast, native desktop client for managing torrents and downloads through [Real-Debrid](https://real-debrid.com). Built with Tauri, React, and Rust.
+> 🚀 A blazing-fast, native desktop client for managing torrents and downloads through [Real-Debrid](https://real-debrid.com) and [TorBox](https://torbox.app). Built with Tauri, React, and Rust.
 
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-GPL--3.0-green?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-0.1.0-orange?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.1.1-orange?style=for-the-badge)
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![Tauri](https://img.shields.io/badge/tauri-%2324C8DB.svg?style=for-the-badge&logo=tauri&logoColor=%23FFFFFF)
+![Real-Debrid](https://img.shields.io/badge/Real--Debrid-77C351?style=for-the-badge)
+![TorBox](https://img.shields.io/badge/TorBox-3b82f6?style=for-the-badge)
 
 ---
 
@@ -49,7 +51,7 @@
 
 ## 📋 Requirements
 
-- 🔑 A [Real-Debrid](https://real-debrid.com) premium account
+- 🔑 A [Real-Debrid](https://real-debrid.com) or [TorBox](https://torbox.app) premium account
 - 💻 macOS 11+ / Windows 10+ / Modern Linux distro
 
 ---
@@ -58,9 +60,9 @@
 
 1. 📥 Download and install for your platform
 2. 🚀 Launch DebridDownloader
-3. 🔐 Connect your Real-Debrid account:
-   - **API Token** — paste from [real-debrid.com/apitoken](https://real-debrid.com/apitoken)
-   - **OAuth Login** — authorize via browser (device code flow)
+3. 🔐 Connect your debrid provider:
+   - **Real-Debrid** — API token from [real-debrid.com/apitoken](https://real-debrid.com/apitoken) or OAuth login
+   - **TorBox** — API token from [torbox.app](https://torbox.app)
 4. ⚙️ (Optional) Add tracker sources in **Settings > Trackers** to enable search
 5. 🧲 Start adding torrents and downloading!
 
@@ -87,7 +89,7 @@ You can add multiple trackers — searches run in parallel across all enabled so
 
 ### 📥 Managing Downloads
 
-- 📋 **Torrents** — all your Real-Debrid torrents with sortable columns (name, size, date, status)
+- 📋 **Torrents** — all your torrents with sortable columns (name, size, date, status)
 - ⬇️ **Downloads** — active downloads with live speed, ETA, and progress bars
 - ✅ **Completed** — finished downloads with "Reveal in Finder" to locate files
 - 🔎 **Search** — integrated tracker search with seeder counts and one-click add
@@ -124,7 +126,7 @@ You can add multiple trackers — searches run in parallel across all enabled so
 
 DebridDownloader is a **download management tool**. It:
 
-- ✅ Provides an interface to the [Real-Debrid API](https://api.real-debrid.com/) — a legitimate paid service
+- ✅ Provides an interface to the [Real-Debrid API](https://api.real-debrid.com/) and [TorBox API](https://api.torbox.app) — legitimate paid services
 - ✅ Ships with **zero torrent tracker sources** — users bring their own
 - ✅ Does not host, index, or distribute any copyrighted content
 - ✅ Does not include any hardcoded tracker URLs, scraper targets, or search endpoints
@@ -216,7 +218,7 @@ npx tsc --noEmit
 |--------|---------|
 | `lib.rs` | 🏗️ Tauri builder — plugins, tray icon, commands |
 | `state.rs` | 💾 App state: RD client, settings, downloads, cancel tokens |
-| `api/` | 🌐 Real-Debrid REST API client |
+| `providers/` | 🌐 Debrid provider clients (Real-Debrid, TorBox) |
 | `commands/` | 🔌 Tauri `#[command]` bridge functions |
 | `downloader.rs` | 📥 Download engine with progress events + cancellation |
 | `scrapers/` | 🔍 User-configurable tracker search (API-based) |
@@ -252,7 +254,7 @@ GPL-3.0 — see [LICENSE](LICENSE) for details.
 ---
 
 <p align="center">
-  <b>Made with 🦀 Rust + ⚛️ React + 💚 Real-Debrid</b>
+  <b>Made with 🦀 Rust + ⚛️ React + 💚 Real-Debrid + 💙 TorBox</b>
   <br>
   <sub>Built by <a href="https://casavargas.app">Casa Vargas</a></sub>
 </p>
