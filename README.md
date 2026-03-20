@@ -10,6 +10,7 @@
 ![Tauri](https://img.shields.io/badge/tauri-%2324C8DB.svg?style=for-the-badge&logo=tauri&logoColor=%23FFFFFF)
 ![Real-Debrid](https://img.shields.io/badge/Real--Debrid-77C351?style=for-the-badge)
 ![TorBox](https://img.shields.io/badge/TorBox-3b82f6?style=for-the-badge)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/SsDDexkhUx)
 
 ---
 
@@ -257,4 +258,6 @@ GPL-3.0 — see [LICENSE](LICENSE) for details.
   <b>Made with 🦀 Rust + ⚛️ React + 💚 Real-Debrid + 💙 TorBox</b>
   <br>
   <sub>Built by <a href="https://casavargas.app">Casa Vargas</a></sub>
+  <br>
+  <sub>💬 <a href="https://discord.gg/SsDDexkhUx">Join our Discord</a></sub>
 </p>
