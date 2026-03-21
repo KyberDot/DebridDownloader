@@ -120,7 +120,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-rd-darker">
+      <div className="flex items-center justify-center h-screen bg-[var(--theme-bg)]">
         <div className="text-zinc-400 text-lg">Loading...</div>
       </div>
     );

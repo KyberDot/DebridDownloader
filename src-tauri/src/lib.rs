@@ -34,14 +34,17 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+            // Always bring the window to front
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
             for arg in argv.iter() {
                 if commands::magnet::validate_magnet_uri(arg) {
                     let _ = app.emit("magnet-link-received", arg.clone());
                     return;
                 }
-            }
-            if let Some(window) = app.get_webview_window("main") {
-                let _ = window.set_focus();
             }
         }))
         .manage(PendingMagnetUri(std::sync::Mutex::new(None)))
@@ -49,9 +52,20 @@ pub fn run() {
             // Deep-link handler for magnet URIs
             let app_handle = app.handle().clone();
             app.deep_link().on_open_url(move |event| {
+                // Show and focus the window when a deep link arrives
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.unminimize();
+                    let _ = window.set_focus();
+                }
+
                 for url in event.urls() {
                     let url_str = url.to_string();
                     if commands::magnet::validate_magnet_uri(&url_str) {
+                        // Store as pending in case the frontend hasn't loaded yet (cold start)
+                        if let Some(state) = app_handle.try_state::<PendingMagnetUri>() {
+                            *state.0.lock().unwrap() = Some(url_str.clone());
+                        }
                         let _ = app_handle.emit("magnet-link-received", url_str);
                     } else {
                         log::debug!("Dropped invalid magnet URI: {}", url_str);

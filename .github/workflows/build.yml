@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   build:
+    if: startsWith(github.ref, 'refs/tags/')
     strategy:
       fail-fast: false
       matrix:
@@ -110,12 +111,128 @@ jobs:
             | Linux | ARM64 | `.deb` / `.rpm` / `.AppImage` |
           releaseDraft: true
           prerelease: false
-          includeUpdaterJson: true
           args: --target ${{ matrix.target }}
+
+  # After all builds finish, generate a single latest.json from the release assets
+  publish-updater:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate updater JSON
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          REPO="${GITHUB_REPOSITORY}"
+          VERSION="${TAG#v}"
+
+          # Get the draft release for this tag
+          RELEASE=$(gh api "repos/${REPO}/releases" --jq ".[] | select(.tag_name == \"${TAG}\")")
+          RELEASE_ID=$(echo "$RELEASE" | jq -r '.id')
+          PUB_DATE=$(echo "$RELEASE" | jq -r '.created_at')
+          NOTES=$(echo "$RELEASE" | jq -r '.body // ""')
+
+          if [ -z "$RELEASE_ID" ] || [ "$RELEASE_ID" = "null" ]; then
+            echo "ERROR: No release found for tag ${TAG}"
+            exit 1
+          fi
+
+          # Get all assets
+          ASSETS=$(gh api "repos/${REPO}/releases/${RELEASE_ID}/assets")
+
+          # Helper: find asset URL by name pattern
+          asset_url() {
+            echo "$ASSETS" | jq -r --arg pattern "$1" \
+              '.[] | select(.name | test($pattern)) | .browser_download_url' | head -1
+          }
+
+          # Helper: download .sig file content
+          sig_content() {
+            local sig_url
+            sig_url=$(asset_url "$1")
+            if [ -n "$sig_url" ] && [ "$sig_url" != "null" ]; then
+              gh api -H "Accept: application/octet-stream" "repos/${REPO}/releases/assets/$(echo "$ASSETS" | jq -r --arg pattern "$1" '.[] | select(.name | test($pattern)) | .id' | head -1)" 2>/dev/null || echo ""
+            fi
+          }
+
+          # Build platforms object
+          # macOS aarch64: .app.tar.gz
+          DARWIN_AARCH64_URL=$(asset_url "aarch64.*\\.app\\.tar\\.gz$")
+          DARWIN_AARCH64_SIG=$(sig_content "aarch64.*\\.app\\.tar\\.gz\\.sig$")
+
+          # macOS x86_64: .app.tar.gz
+          DARWIN_X64_URL=$(asset_url "x64.*\\.app\\.tar\\.gz$|x86_64.*\\.app\\.tar\\.gz$")
+          DARWIN_X64_SIG=$(sig_content "x64.*\\.app\\.tar\\.gz\\.sig$|x86_64.*\\.app\\.tar\\.gz\\.sig$")
+
+          # Windows x86_64: .nsis.zip
+          WINDOWS_X64_URL=$(asset_url "x64.*\\.nsis\\.zip$|x86_64.*\\.nsis\\.zip$")
+          WINDOWS_X64_SIG=$(sig_content "x64.*\\.nsis\\.zip\\.sig$|x86_64.*\\.nsis\\.zip\\.sig$")
+
+          # Windows aarch64: .nsis.zip
+          WINDOWS_AARCH64_URL=$(asset_url "arm64.*\\.nsis\\.zip$|aarch64.*\\.nsis\\.zip$")
+          WINDOWS_AARCH64_SIG=$(sig_content "arm64.*\\.nsis\\.zip\\.sig$|aarch64.*\\.nsis\\.zip\\.sig$")
+
+          # Linux x86_64: .AppImage.tar.gz
+          LINUX_X64_URL=$(asset_url "amd64.*\\.AppImage\\.tar\\.gz$|x86_64.*\\.AppImage\\.tar\\.gz$")
+          LINUX_X64_SIG=$(sig_content "amd64.*\\.AppImage\\.tar\\.gz\\.sig$|x86_64.*\\.AppImage\\.tar\\.gz\\.sig$")
+
+          # Linux aarch64: .AppImage.tar.gz
+          LINUX_AARCH64_URL=$(asset_url "aarch64.*\\.AppImage\\.tar\\.gz$|arm64.*\\.AppImage\\.tar\\.gz$")
+          LINUX_AARCH64_SIG=$(sig_content "aarch64.*\\.AppImage\\.tar\\.gz\\.sig$|arm64.*\\.AppImage\\.tar\\.gz\\.sig$")
+
+          # Build JSON with jq
+          LATEST_JSON=$(jq -n \
+            --arg version "$VERSION" \
+            --arg notes "$NOTES" \
+            --arg pub_date "$PUB_DATE" \
+            --arg darwin_aarch64_url "$DARWIN_AARCH64_URL" \
+            --arg darwin_aarch64_sig "$DARWIN_AARCH64_SIG" \
+            --arg darwin_x64_url "$DARWIN_X64_URL" \
+            --arg darwin_x64_sig "$DARWIN_X64_SIG" \
+            --arg windows_x64_url "$WINDOWS_X64_URL" \
+            --arg windows_x64_sig "$WINDOWS_X64_SIG" \
+            --arg windows_aarch64_url "$WINDOWS_AARCH64_URL" \
+            --arg windows_aarch64_sig "$WINDOWS_AARCH64_SIG" \
+            --arg linux_x64_url "$LINUX_X64_URL" \
+            --arg linux_x64_sig "$LINUX_X64_SIG" \
+            --arg linux_aarch64_url "$LINUX_AARCH64_URL" \
+            --arg linux_aarch64_sig "$LINUX_AARCH64_SIG" \
+            '{
+              version: $version,
+              notes: $notes,
+              pub_date: $pub_date,
+              platforms: (
+                {}
+                | if $darwin_aarch64_url != "" then . + {"darwin-aarch64": {signature: $darwin_aarch64_sig, url: $darwin_aarch64_url}} else . end
+                | if $darwin_x64_url != "" then . + {"darwin-x86_64": {signature: $darwin_x64_sig, url: $darwin_x64_url}} else . end
+                | if $windows_x64_url != "" then . + {"windows-x86_64": {signature: $windows_x64_sig, url: $windows_x64_url}} else . end
+                | if $windows_aarch64_url != "" then . + {"windows-aarch64": {signature: $windows_aarch64_sig, url: $windows_aarch64_url}} else . end
+                | if $linux_x64_url != "" then . + {"linux-x86_64": {signature: $linux_x64_sig, url: $linux_x64_url}} else . end
+                | if $linux_aarch64_url != "" then . + {"linux-aarch64": {signature: $linux_aarch64_sig, url: $linux_aarch64_url}} else . end
+              )
+            }')
+
+          echo "$LATEST_JSON" > latest.json
+          echo "Generated latest.json:"
+          cat latest.json
+
+          # Delete existing latest.json asset if present
+          EXISTING_ID=$(echo "$ASSETS" | jq -r '.[] | select(.name == "latest.json") | .id' | head -1)
+          if [ -n "$EXISTING_ID" ] && [ "$EXISTING_ID" != "null" ]; then
+            gh api -X DELETE "repos/${REPO}/releases/assets/${EXISTING_ID}"
+            echo "Deleted existing latest.json asset"
+          fi
+
+          # Upload latest.json
+          gh release upload "$TAG" latest.json --repo "$REPO" --clobber
+          echo "Uploaded latest.json to release ${TAG}"
 
   # Separate job for build checks (workflow_dispatch, no release)
   build-check:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
+    if: github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
