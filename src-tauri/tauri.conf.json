@@ -47,7 +47,7 @@
       }
     },
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU5REMxQkFEN0U2RTk3QjUKUldTMWwyNStyUnZjNlY4SU5PL0lpdHpSL21JZ2hiNGEzNklhMGhFaHhzaTJqb0lQQnUxNk1CQmUK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDVGRUZFQjQzNTFFRUVEMkEKUldRcTdlNVJRK3Z2WDZHMStOTEw3NzBoUCs0MmFZNG1yUWpYcGpmelc3NkhaWVN6cVRzeGRYMEoK",
       "endpoints": [
         "https://github.com/CasaVargas/DebridDownloader/releases/latest/download/latest.json"
       ]
