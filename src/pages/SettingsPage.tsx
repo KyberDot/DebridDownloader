@@ -5,11 +5,13 @@ import { getAvailableProviders, switchProvider, getActiveProvider } from "../api
 import type { AppSettings, TrackerConfig, ProviderInfo } from "../types";
 import { open } from "@tauri-apps/plugin-dialog";
 import { enable as enableAutostart, disable as disableAutostart, isEnabled as isAutostartEnabled } from "@tauri-apps/plugin-autostart";
+import { setMagnetHandler } from "../api/magnet";
 import { ACCENT_COLORS } from "../hooks/useAccentColor";
 
 interface FrontendSettings {
   auto_start_downloads: boolean;
   launch_at_login: boolean;
+  handle_magnet_links: boolean;
   accent_color: string;
   app_theme: string;
   default_sort_key: string;
@@ -20,6 +22,7 @@ interface FrontendSettings {
 const DEFAULT_FRONTEND: FrontendSettings = {
   auto_start_downloads: false,
   launch_at_login: false,
+  handle_magnet_links: false,
   accent_color: "emerald",
   app_theme: "dark",
   default_sort_key: "added",
@@ -247,7 +250,8 @@ export default function SettingsPage() {
                   </div>
                   <button
                     onClick={handleBrowse}
-                    className="bg-[var(--theme-selected)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-border-hover)] rounded-lg px-6 py-3.5 text-[14px] font-medium transition-colors shrink-0"
+                    className="bg-[var(--theme-selected)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-border-hover)] rounded-lg text-[14px] font-medium transition-colors shrink-0 self-stretch"
+                    style={{ padding: "0 28px" }}
                   >
                     Browse
                   </button>
@@ -344,7 +348,7 @@ export default function SettingsPage() {
                       </span>
                       <button
                         onClick={() => handleRemoveTracker(tracker.id)}
-                        className="shrink-0 text-[#ef4444] text-[13px] px-3 py-1.5 rounded-lg transition-colors"
+                        className="shrink-0 text-[#ef4444] text-[13px] px-5 py-2.5 rounded-lg transition-colors"
                         style={{ background: "rgba(239,68,68,0.06)" }}
                         onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(239,68,68,0.12)"; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(239,68,68,0.06)"; }}
@@ -395,8 +399,8 @@ export default function SettingsPage() {
                     <button
                       onClick={handleAddTracker}
                       disabled={!newTrackerName.trim() || !newTrackerUrl.trim()}
-                      className="px-6 py-3 rounded-lg text-white text-[14px] font-medium disabled:opacity-30 transition-colors shrink-0"
-                      style={{ background: `linear-gradient(135deg, var(--accent), var(--accent)cc)` }}
+                      className="rounded-lg text-white text-[14px] font-medium disabled:opacity-30 transition-colors shrink-0"
+                      style={{ background: "var(--accent)", padding: "12px 28px" }}
                     >
                       Add
                     </button>
@@ -433,6 +437,22 @@ export default function SettingsPage() {
                     applyFrontend({ launch_at_login: v });
                   } catch (e) {
                     console.error("Autostart error:", e);
+                  }
+                }}
+              />
+
+              {/* Handle magnet links */}
+              <ToggleRow
+                label="Set as default magnet link handler"
+                description="Open magnet links from your browser directly in DebridDownloader"
+                checked={frontend.handle_magnet_links}
+                accentColor={accentColor}
+                onChange={async (v) => {
+                  try {
+                    await setMagnetHandler(v);
+                    applyFrontend({ handle_magnet_links: v });
+                  } catch (e) {
+                    console.error("Failed to set magnet handler:", e);
                   }
                 }}
               />
@@ -528,7 +548,7 @@ export default function SettingsPage() {
                 <p className="text-[14px] text-[var(--theme-text-muted)] mb-5">
                   Highlight color used for active states and buttons
                 </p>
-                <div className="flex gap-4">
+                <div className="grid grid-cols-3 gap-3">
                   {[
                     { id: "emerald", label: "Emerald" },
                     { id: "blue", label: "Blue" },
@@ -543,25 +563,30 @@ export default function SettingsPage() {
                       <button
                         key={opt.id}
                         onClick={() => applyFrontend({ accent_color: opt.id })}
-                        className="flex flex-col items-center gap-3 p-4 rounded-xl transition-all"
+                        className="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all"
                         style={{
-                          background: isSelected ? "var(--theme-selected)" : "transparent",
-                          border: isSelected ? `2px solid ${color}` : "2px solid transparent",
+                          background: isSelected ? "var(--theme-bg)" : "transparent",
+                          border: isSelected ? `2px solid ${color}` : "2px solid var(--theme-border)",
                         }}
                       >
                         <div
-                          className="w-10 h-10 rounded-full transition-shadow"
+                          className="w-5 h-5 rounded-full shrink-0 transition-shadow"
                           style={{
                             background: color,
-                            boxShadow: isSelected ? `0 0 20px ${color}50` : "none",
+                            boxShadow: isSelected ? `0 0 12px ${color}60` : "none",
                           }}
                         />
                         <span
-                          className="text-[13px] font-medium"
-                          style={{ color: isSelected ? color : "var(--theme-text-muted)" }}
+                          className="text-[14px] font-medium"
+                          style={{ color: isSelected ? "var(--theme-text-primary)" : "var(--theme-text-muted)" }}
                         >
                           {opt.label}
                         </span>
+                        {isSelected && (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-auto shrink-0">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
                       </button>
                     );
                   })}
@@ -569,30 +594,6 @@ export default function SettingsPage() {
               </div>
             </section>
 
-            {/* ── About ── */}
-            <section className="mb-20">
-              <h3 className="text-[12px] text-[var(--theme-text-muted)] uppercase tracking-[1.5px] mb-10 pb-4 border-b border-[var(--theme-border-subtle)]">
-                About
-              </h3>
-              <div className="bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-xl p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}cc)` }}
-                  >
-                    <span className="text-white font-bold text-[20px]">D</span>
-                  </div>
-                  <div>
-                    <div className="text-[17px] text-[var(--theme-text-primary)] font-semibold">DebridDownloader</div>
-                    <div className="text-[14px] text-[var(--theme-text-muted)]">Version 0.1.0</div>
-                  </div>
-                </div>
-                <p className="text-[14px] text-[var(--theme-text-muted)] leading-relaxed">
-                  Desktop client for managing torrents and downloads via the Real-Debrid API.
-                  Built with Tauri, React, and Rust.
-                </p>
-              </div>
-            </section>
           </>
         )}
 

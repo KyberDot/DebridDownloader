@@ -6,21 +6,37 @@ import {
   Routes,
 } from "react-router-dom";
 import { AuthContext, type AuthState } from "./hooks/useAuth";
+import { useMagnetLinkListener } from "./hooks/useMagnetLinkListener";
 import * as authApi from "./api/auth";
 import type { User } from "./types";
 
 import Layout from "./components/Layout";
+import AddTorrentModal from "./components/AddTorrentModal";
 import AuthPage from "./pages/AuthPage";
 import TorrentsPage from "./pages/TorrentsPage";
 import DownloadsPage from "./pages/DownloadsPage";
 import CompletedPage from "./pages/CompletedPage";
 import SearchPage from "./pages/SearchPage";
 import SettingsPage from "./pages/SettingsPage";
+import AboutPage from "./pages/AboutPage";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deepLinkMagnet, setDeepLinkMagnet] = useState<string | null>(null);
+
+  const handleMagnetLink = useCallback(
+    (event: { uri: string; displayName: string | null }) => {
+      setDeepLinkMagnet(event.uri);
+    },
+    []
+  );
+
+  const { clearCurrentUri } = useMagnetLinkListener(
+    handleMagnetLink,
+    isAuthenticated
+  );
 
   const refresh = useCallback(async () => {
     try {
@@ -127,8 +143,22 @@ function App() {
                 <Route path="/completed" element={<CompletedPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/about" element={<AboutPage />} />
                 <Route path="*" element={<Navigate to="/torrents" replace />} />
               </Route>
+              {deepLinkMagnet && (
+                <AddTorrentModal
+                  initialMagnet={deepLinkMagnet}
+                  onClose={() => {
+                    setDeepLinkMagnet(null);
+                    clearCurrentUri();
+                  }}
+                  onAdded={() => {
+                    setDeepLinkMagnet(null);
+                    clearCurrentUri();
+                  }}
+                />
+              )}
             </>
           )}
         </Routes>

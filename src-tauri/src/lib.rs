@@ -9,8 +9,12 @@ use state::AppState;
 use tauri::{
     menu::{MenuBuilder, MenuItemBuilder},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Manager,
+    Emitter, Manager,
 };
+use tauri_plugin_deep_link::DeepLinkExt;
+
+/// Holds a magnet URI received during cold start, before the frontend is ready.
+pub struct PendingMagnetUri(pub std::sync::Mutex<Option<String>>);
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -26,7 +30,45 @@ pub fn run() {
                 .app_name("DebridDownloader")
                 .build(),
         )
+        .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+            for arg in argv.iter() {
+                if commands::magnet::validate_magnet_uri(arg) {
+                    let _ = app.emit("magnet-link-received", arg.clone());
+                    return;
+                }
+            }
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.set_focus();
+            }
+        }))
+        .manage(PendingMagnetUri(std::sync::Mutex::new(None)))
         .setup(|app| {
+            // Deep-link handler for magnet URIs
+            let app_handle = app.handle().clone();
+            app.deep_link().on_open_url(move |event| {
+                for url in event.urls() {
+                    let url_str = url.to_string();
+                    if commands::magnet::validate_magnet_uri(&url_str) {
+                        let _ = app_handle.emit("magnet-link-received", url_str);
+                    } else {
+                        log::debug!("Dropped invalid magnet URI: {}", url_str);
+                    }
+                }
+            });
+
+            // Check for pending magnet URI from cold start CLI args (Windows/Linux)
+            for arg in std::env::args().skip(1) {
+                if commands::magnet::validate_magnet_uri(&arg) {
+                    if let Some(state) = app.try_state::<PendingMagnetUri>() {
+                        *state.0.lock().unwrap() = Some(arg);
+                    }
+                    break;
+                }
+            }
+
             // Build tray menu
             let show_i = MenuItemBuilder::with_id("show", "Show Window").build(app)?;
             let quit_i = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
@@ -155,6 +197,9 @@ pub fn run() {
             // Streaming
             commands::streaming::get_stream_url,
             commands::streaming::cleanup_stream_session,
+            // Magnet link handler
+            commands::magnet::set_magnet_handler,
+            commands::magnet::get_pending_magnet_uri,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

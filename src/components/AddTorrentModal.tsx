@@ -6,10 +6,11 @@ import * as torrentsApi from "../api/torrents";
 interface Props {
   onClose: () => void;
   onAdded: () => void;
+  initialMagnet?: string;
 }
 
-export default function AddTorrentModal({ onClose, onAdded }: Props) {
-  const [magnet, setMagnet] = useState("");
+export default function AddTorrentModal({ onClose, onAdded, initialMagnet }: Props) {
+  const [magnet, setMagnet] = useState(initialMagnet ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 

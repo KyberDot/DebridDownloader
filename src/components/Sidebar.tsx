@@ -7,6 +7,7 @@ interface SidebarProps {
   onNavigate: (view: string) => void;
   onSearchOpen: () => void;
   onSettingsOpen: () => void;
+  onAboutOpen: () => void;
 }
 
 export default function Sidebar({
@@ -14,6 +15,7 @@ export default function Sidebar({
   onNavigate,
   onSearchOpen,
   onSettingsOpen,
+  onAboutOpen,
 }: SidebarProps) {
   const { user, logout } = useAuth();
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -112,6 +114,18 @@ export default function Sidebar({
           ),
           onClick: onSettingsOpen,
         },
+        {
+          id: "about",
+          label: "About",
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+          ),
+          onClick: onAboutOpen,
+        },
       ],
     },
   ];
@@ -126,13 +140,8 @@ export default function Sidebar({
     >
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5">
-        <div
-          className="w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0"
-          style={{ background: "linear-gradient(135deg, var(--accent), var(--accent)cc)" }}
-        >
-          <span className="text-white font-bold text-[15px] leading-none">D</span>
-        </div>
-        <span className="text-[var(--theme-text-primary)] text-[15px] font-semibold">Debrid</span>
+        <img src="/app-icon.png" alt="DebridDownloader" className="w-8 h-8 rounded-[8px] shrink-0" />
+        <span className="text-[var(--theme-text-primary)] text-[15px] font-semibold">DebridDownloader</span>
       </div>
 
       {/* Nav sections */}

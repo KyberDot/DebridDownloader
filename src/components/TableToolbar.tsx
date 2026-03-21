@@ -25,7 +25,7 @@ export default function TableToolbar({
           <p className="text-[13px] text-[var(--theme-text-muted)] mt-1">{subtitle}</p>
         )}
       </div>
-      <div className="flex items-center gap-4 shrink-0">
+      <div className="flex items-stretch gap-4 shrink-0">
         <div className="relative">
           <input
             type="text"

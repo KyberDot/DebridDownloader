@@ -17,6 +17,8 @@ export default function Layout() {
     ? "search"
     : location.pathname.startsWith("/settings")
     ? "settings"
+    : location.pathname.startsWith("/about")
+    ? "about"
     : "torrents";
 
   const handleNavigate = (view: string) => {
@@ -71,6 +73,7 @@ export default function Layout() {
           onNavigate={handleNavigate}
           onSearchOpen={() => navigate("/search")}
           onSettingsOpen={() => navigate("/settings")}
+          onAboutOpen={() => navigate("/about")}
         />
         <main className="flex-1 overflow-hidden flex flex-col" style={{ background: "var(--theme-bg-content)" }}>
           <Outlet />

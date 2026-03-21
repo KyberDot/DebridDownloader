@@ -19,6 +19,9 @@
     "core:event:allow-listen",
     "autostart:allow-enable",
     "autostart:allow-disable",
-    "autostart:allow-is-enabled"
+    "autostart:allow-is-enabled",
+    "deep-link:default",
+    "updater:default",
+    "process:allow-restart"
   ]
 }

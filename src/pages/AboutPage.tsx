@@ -1,0 +1,244 @@
+import { useState } from "react";
+import { check } from "@tauri-apps/plugin-updater";
+import { relaunch } from "@tauri-apps/plugin-process";
+
+type UpdateStatus =
+  | { state: "idle" }
+  | { state: "checking" }
+  | { state: "up-to-date" }
+  | { state: "available"; version: string }
+  | { state: "downloading"; progress: number }
+  | { state: "ready" }
+  | { state: "error"; message: string };
+
+export default function AboutPage() {
+  const [status, setStatus] = useState<UpdateStatus>({ state: "idle" });
+
+  const handleCheckForUpdates = async () => {
+    setStatus({ state: "checking" });
+    try {
+      const update = await check();
+      if (!update) {
+        setStatus({ state: "up-to-date" });
+        return;
+      }
+
+      setStatus({ state: "available", version: update.version });
+
+      let totalLength = 0;
+      let downloaded = 0;
+
+      await update.downloadAndInstall((event) => {
+        if (event.event === "Started" && event.data.contentLength) {
+          totalLength = event.data.contentLength;
+          setStatus({ state: "downloading", progress: 0 });
+        } else if (event.event === "Progress") {
+          downloaded += event.data.chunkLength;
+          const progress = totalLength > 0 ? Math.round((downloaded / totalLength) * 100) : 0;
+          setStatus({ state: "downloading", progress });
+        } else if (event.event === "Finished") {
+          setStatus({ state: "ready" });
+        }
+      });
+
+      setStatus({ state: "ready" });
+    } catch (e) {
+      setStatus({ state: "error", message: String(e) });
+    }
+  };
+
+  const handleRelaunch = async () => {
+    await relaunch();
+  };
+
+  const renderUpdateButton = () => {
+    switch (status.state) {
+      case "idle":
+        return (
+          <button
+            onClick={handleCheckForUpdates}
+            className="text-[var(--theme-text-secondary)] font-medium rounded-lg transition-colors hover:text-[var(--theme-text-primary)]"
+            style={{
+              marginTop: 16,
+              padding: "10px 24px",
+              background: "var(--theme-selected)",
+              border: "1px solid var(--theme-border)",
+              fontSize: 13,
+            }}
+          >
+            Check for Updates
+          </button>
+        );
+      case "checking":
+        return (
+          <div className="flex items-center gap-2" style={{ marginTop: 16 }}>
+            <div className="w-4 h-4 border-2 border-[var(--theme-border)] border-t-[var(--accent)] rounded-full animate-spin" />
+            <span className="text-[var(--theme-text-muted)]" style={{ fontSize: 13 }}>Checking for updates...</span>
+          </div>
+        );
+      case "up-to-date":
+        return (
+          <span className="text-[var(--theme-text-muted)]" style={{ marginTop: 16, fontSize: 13 }}>
+            You're on the latest version
+          </span>
+        );
+      case "available":
+        return (
+          <div className="flex items-center gap-2" style={{ marginTop: 16 }}>
+            <div className="w-4 h-4 border-2 border-[var(--theme-border)] border-t-[var(--accent)] rounded-full animate-spin" />
+            <span className="text-[var(--theme-text-muted)]" style={{ fontSize: 13 }}>
+              Downloading v{status.version}...
+            </span>
+          </div>
+        );
+      case "downloading":
+        return (
+          <div className="flex flex-col items-center gap-2 w-full" style={{ marginTop: 16 }}>
+            <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "var(--theme-border)" }}>
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{ width: `${status.progress}%`, background: "var(--accent)" }}
+              />
+            </div>
+            <span className="text-[var(--theme-text-muted)]" style={{ fontSize: 13 }}>
+              Downloading... {status.progress}%
+            </span>
+          </div>
+        );
+      case "ready":
+        return (
+          <button
+            onClick={handleRelaunch}
+            className="text-white font-medium rounded-lg transition-opacity hover:opacity-90"
+            style={{
+              marginTop: 16,
+              padding: "10px 24px",
+              background: "var(--accent)",
+              fontSize: 13,
+            }}
+          >
+            Restart to Update
+          </button>
+        );
+      case "error":
+        return (
+          <div className="flex flex-col items-center gap-2" style={{ marginTop: 16 }}>
+            <span className="text-[#ef4444]" style={{ fontSize: 13 }}>{status.message}</span>
+            <button
+              onClick={handleCheckForUpdates}
+              className="text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)] transition-colors"
+              style={{ fontSize: 13 }}
+            >
+              Try again
+            </button>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className="flex-1 flex items-center justify-center overflow-y-auto">
+      <div className="flex flex-col items-center text-center" style={{ maxWidth: 420, padding: "60px 32px" }}>
+        <img
+          src="/app-icon.png"
+          alt="DebridDownloader"
+          className="rounded-[20px]"
+          style={{ width: 96, height: 96, boxShadow: "0 8px 32px rgba(0,0,0,0.25)" }}
+        />
+
+        <h1
+          className="text-[var(--theme-text-primary)] font-bold tracking-[-0.5px]"
+          style={{ fontSize: 24, marginTop: 24 }}
+        >
+          DebridDownloader
+        </h1>
+
+        <span
+          className="text-[var(--theme-text-ghost)]"
+          style={{ fontSize: 13, marginTop: 6 }}
+        >
+          Version 1.1.2
+        </span>
+
+        {renderUpdateButton()}
+
+        <p
+          className="text-[var(--theme-text-muted)] leading-relaxed"
+          style={{ fontSize: 15, marginTop: 24 }}
+        >
+          A fast, native desktop client for managing torrents and downloads through debrid services.
+          Built with Tauri, React, and Rust.
+        </p>
+
+        <div
+          className="w-full rounded-xl"
+          style={{
+            marginTop: 32,
+            padding: "24px",
+            background: "var(--theme-bg)",
+            border: "1px solid var(--theme-border)",
+          }}
+        >
+          <p
+            className="text-[var(--theme-text-secondary)] leading-relaxed"
+            style={{ fontSize: 14 }}
+          >
+            If you enjoy using DebridDownloader, consider sponsoring the developer to support continued development of great apps and utilities.
+          </p>
+          <a
+            href="https://github.com/sponsors/prjoni99"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-white font-medium rounded-lg transition-opacity hover:opacity-90"
+            style={{
+              marginTop: 16,
+              padding: "12px 28px",
+              background: "var(--accent)",
+              fontSize: 14,
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+            Sponsor on GitHub
+          </a>
+        </div>
+
+        <div
+          className="flex items-center gap-4"
+          style={{ marginTop: 24 }}
+        >
+          <a
+            href="https://github.com/CasaVargas/DebridDownloader"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--theme-text-ghost)] hover:text-[var(--theme-text-secondary)] transition-colors"
+            style={{ fontSize: 13 }}
+          >
+            GitHub
+          </a>
+          <span className="text-[var(--theme-border)]">·</span>
+          <a
+            href="https://github.com/CasaVargas/DebridDownloader/discussions"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--theme-text-ghost)] hover:text-[var(--theme-text-secondary)] transition-colors"
+            style={{ fontSize: 13 }}
+          >
+            Discussions
+          </a>
+          <span className="text-[var(--theme-border)]">·</span>
+          <a
+            href="https://github.com/CasaVargas/DebridDownloader/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--theme-text-ghost)] hover:text-[var(--theme-text-secondary)] transition-colors"
+            style={{ fontSize: 13 }}
+          >
+            Releases
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
