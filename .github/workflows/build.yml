@@ -111,6 +111,7 @@ jobs:
             | Linux | ARM64 | `.deb` / `.rpm` / `.AppImage` |
           releaseDraft: true
           prerelease: false
+          includeUpdaterJson: true
           args: --target ${{ matrix.target }}
 
   # After all builds finish, generate a single latest.json from the release assets
@@ -143,45 +144,57 @@ jobs:
           # Get all assets
           ASSETS=$(gh api "repos/${REPO}/releases/${RELEASE_ID}/assets")
 
-          # Helper: find asset URL by name pattern
+          # Helper: find asset URL by exact name suffix
           asset_url() {
-            echo "$ASSETS" | jq -r --arg pattern "$1" \
-              '.[] | select(.name | test($pattern)) | .browser_download_url' | head -1
+            echo "$ASSETS" | jq -r --arg suffix "$1" \
+              '[.[] | select(.name | endswith($suffix)) | .browser_download_url][0] // ""'
           }
 
-          # Helper: download .sig file content
+          # Helper: download .sig file content by exact name suffix
           sig_content() {
-            local sig_url
-            sig_url=$(asset_url "$1")
-            if [ -n "$sig_url" ] && [ "$sig_url" != "null" ]; then
-              gh api -H "Accept: application/octet-stream" "repos/${REPO}/releases/assets/$(echo "$ASSETS" | jq -r --arg pattern "$1" '.[] | select(.name | test($pattern)) | .id' | head -1)" 2>/dev/null || echo ""
+            local asset_id
+            asset_id=$(echo "$ASSETS" | jq -r --arg suffix "$1" \
+              '[.[] | select(.name | endswith($suffix)) | .id][0] // empty')
+            if [ -n "$asset_id" ]; then
+              gh api -H "Accept: application/octet-stream" \
+                "repos/${REPO}/releases/assets/${asset_id}" 2>/dev/null || echo ""
+            else
+              echo ""
             fi
           }
 
-          # Build platforms object
-          # macOS aarch64: .app.tar.gz
-          DARWIN_AARCH64_URL=$(asset_url "aarch64.*\\.app\\.tar\\.gz$")
-          DARWIN_AARCH64_SIG=$(sig_content "aarch64.*\\.app\\.tar\\.gz\\.sig$")
+          # Build platforms object using exact filename suffixes
+          # macOS aarch64
+          DARWIN_AARCH64_URL=$(asset_url "_aarch64.app.tar.gz")
+          DARWIN_AARCH64_SIG=$(sig_content "_aarch64.app.tar.gz.sig")
 
-          # macOS x86_64: .app.tar.gz
-          DARWIN_X64_URL=$(asset_url "x64.*\\.app\\.tar\\.gz$|x86_64.*\\.app\\.tar\\.gz$")
-          DARWIN_X64_SIG=$(sig_content "x64.*\\.app\\.tar\\.gz\\.sig$|x86_64.*\\.app\\.tar\\.gz\\.sig$")
+          # macOS x86_64
+          DARWIN_X64_URL=$(asset_url "_x64.app.tar.gz")
+          DARWIN_X64_SIG=$(sig_content "_x64.app.tar.gz.sig")
 
-          # Windows x86_64: .nsis.zip
-          WINDOWS_X64_URL=$(asset_url "x64.*\\.nsis\\.zip$|x86_64.*\\.nsis\\.zip$")
-          WINDOWS_X64_SIG=$(sig_content "x64.*\\.nsis\\.zip\\.sig$|x86_64.*\\.nsis\\.zip\\.sig$")
+          # Windows x86_64
+          WINDOWS_X64_URL=$(asset_url "_x64-setup.nsis.zip")
+          WINDOWS_X64_SIG=$(sig_content "_x64-setup.nsis.zip.sig")
 
-          # Windows aarch64: .nsis.zip
-          WINDOWS_AARCH64_URL=$(asset_url "arm64.*\\.nsis\\.zip$|aarch64.*\\.nsis\\.zip$")
-          WINDOWS_AARCH64_SIG=$(sig_content "arm64.*\\.nsis\\.zip\\.sig$|aarch64.*\\.nsis\\.zip\\.sig$")
+          # Windows aarch64
+          WINDOWS_AARCH64_URL=$(asset_url "_arm64-setup.nsis.zip")
+          WINDOWS_AARCH64_SIG=$(sig_content "_arm64-setup.nsis.zip.sig")
 
-          # Linux x86_64: .AppImage.tar.gz
-          LINUX_X64_URL=$(asset_url "amd64.*\\.AppImage\\.tar\\.gz$|x86_64.*\\.AppImage\\.tar\\.gz$")
-          LINUX_X64_SIG=$(sig_content "amd64.*\\.AppImage\\.tar\\.gz\\.sig$|x86_64.*\\.AppImage\\.tar\\.gz\\.sig$")
+          # Linux x86_64
+          LINUX_X64_URL=$(asset_url "_amd64.AppImage.tar.gz")
+          LINUX_X64_SIG=$(sig_content "_amd64.AppImage.tar.gz.sig")
 
-          # Linux aarch64: .AppImage.tar.gz
-          LINUX_AARCH64_URL=$(asset_url "aarch64.*\\.AppImage\\.tar\\.gz$|arm64.*\\.AppImage\\.tar\\.gz$")
-          LINUX_AARCH64_SIG=$(sig_content "aarch64.*\\.AppImage\\.tar\\.gz\\.sig$|arm64.*\\.AppImage\\.tar\\.gz\\.sig$")
+          # Linux aarch64
+          LINUX_AARCH64_URL=$(asset_url "_aarch64.AppImage.tar.gz")
+          LINUX_AARCH64_SIG=$(sig_content "_aarch64.AppImage.tar.gz.sig")
+
+          echo "=== Platform URLs found ==="
+          echo "darwin-aarch64: ${DARWIN_AARCH64_URL:-MISSING}"
+          echo "darwin-x86_64:  ${DARWIN_X64_URL:-MISSING}"
+          echo "windows-x86_64: ${WINDOWS_X64_URL:-MISSING}"
+          echo "windows-aarch64: ${WINDOWS_AARCH64_URL:-MISSING}"
+          echo "linux-x86_64:  ${LINUX_X64_URL:-MISSING}"
+          echo "linux-aarch64: ${LINUX_AARCH64_URL:-MISSING}"
 
           # Build JSON with jq
           LATEST_JSON=$(jq -n \
