@@ -152,10 +152,22 @@ jobs:
 
           echo "Created draft release ${RELEASE_ID}"
 
-          # Collect all files to upload (skip directories and .app bundles)
+          # Rename macOS .app.tar.gz files to include architecture
+          # (both builds produce DebridDownloader.app.tar.gz with no arch suffix)
+          for dir in artifacts/artifacts-macOS-arm64 artifacts/artifacts-macOS-x64; do
+            [ -d "$dir" ] || continue
+            if [[ "$dir" == *arm64* ]]; then ARCH="_aarch64"; else ARCH="_x64"; fi
+            for f in "$dir"/macos/DebridDownloader.app.tar.gz "$dir"/macos/DebridDownloader.app.tar.gz.sig; do
+              [ -f "$f" ] || continue
+              NEWNAME=$(echo "$(basename "$f")" | sed "s/DebridDownloader/DebridDownloader${ARCH}/")
+              mv "$f" "$(dirname "$f")/${NEWNAME}"
+              echo "Renamed $(basename "$f") -> ${NEWNAME}"
+            done
+          done
+
+          # Collect all files to upload (skip .app bundles and icons)
           UPLOAD_FILES=()
           while IFS= read -r f; do
-            # Skip .app directories (macOS app bundles are dirs, we want the .tar.gz)
             [[ "$f" == *.app/* ]] && continue
             [[ "$f" == *"/icons/"* ]] && continue
             UPLOAD_FILES+=("$f")
@@ -261,7 +273,9 @@ jobs:
           echo "=== latest.json ==="
           cat latest.json
           gh release upload "${TAG}" latest.json --repo "${REPO}" --clobber
-          echo "Done — release ${TAG} ready for review"
+          # Publish the release (so /releases/latest/download/latest.json works)
+          gh api -X PATCH "repos/${REPO}/releases/${RELEASE_ID}" -F draft=false
+          echo "Published release ${TAG}"
 
   # Separate job for build checks (workflow_dispatch, no release)
   build-check:
