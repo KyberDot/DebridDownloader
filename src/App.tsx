@@ -4,14 +4,15 @@ import {
   Navigate,
   Route,
   Routes,
+  useNavigate,
 } from "react-router-dom";
 import { AuthContext, type AuthState } from "./hooks/useAuth";
 import { useMagnetLinkListener } from "./hooks/useMagnetLinkListener";
 import * as authApi from "./api/auth";
+import * as torrentsApi from "./api/torrents";
 import type { User } from "./types";
 
 import Layout from "./components/Layout";
-import AddTorrentModal from "./components/AddTorrentModal";
 import AuthPage from "./pages/AuthPage";
 import TorrentsPage from "./pages/TorrentsPage";
 import DownloadsPage from "./pages/DownloadsPage";
@@ -20,15 +21,28 @@ import SearchPage from "./pages/SearchPage";
 import SettingsPage from "./pages/SettingsPage";
 import AboutPage from "./pages/AboutPage";
 
+const navigateRef: { current: ReturnType<typeof useNavigate> | null } = { current: null };
+
+function NavigateRefSetter() {
+  navigateRef.current = useNavigate();
+  return null;
+}
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [deepLinkMagnet, setDeepLinkMagnet] = useState<string | null>(null);
+
+  const clearCurrentUriRef = { current: () => {} };
 
   const handleMagnetLink = useCallback(
     (event: { uri: string; displayName: string | null }) => {
-      setDeepLinkMagnet(event.uri);
+      torrentsApi.addMagnet(event.uri).then(() => {
+        clearCurrentUriRef.current();
+        navigateRef.current?.("/torrents");
+      }).catch((e) => {
+        console.error("Failed to add magnet:", e);
+      });
     },
     []
   );
@@ -37,6 +51,7 @@ function App() {
     handleMagnetLink,
     isAuthenticated
   );
+  clearCurrentUriRef.current = clearCurrentUri;
 
   const refresh = useCallback(async () => {
     try {
@@ -129,6 +144,7 @@ function App() {
   return (
     <AuthContext.Provider value={authState}>
       <BrowserRouter>
+        <NavigateRefSetter />
         <Routes>
           {!isAuthenticated ? (
             <>
@@ -146,19 +162,6 @@ function App() {
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="*" element={<Navigate to="/torrents" replace />} />
               </Route>
-              {deepLinkMagnet && (
-                <AddTorrentModal
-                  initialMagnet={deepLinkMagnet}
-                  onClose={() => {
-                    setDeepLinkMagnet(null);
-                    clearCurrentUri();
-                  }}
-                  onAdded={() => {
-                    setDeepLinkMagnet(null);
-                    clearCurrentUri();
-                  }}
-                />
-              )}
             </>
           )}
         </Routes>
