@@ -1,18 +1,8 @@
-use super::{format_size, SearchParams, SearchResult, ScraperError, TorrentScraper};
+use super::{SearchParams, SearchResult, ScraperError, TorrentScraper};
+use super::utils;
 use serde::Deserialize;
 use std::future::Future;
 use std::pin::Pin;
-
-const TRACKERS: &[&str] = &[
-    "udp://tracker.opentrackr.org:1337/announce",
-    "udp://open.stealth.si:80/announce",
-    "udp://tracker.torrent.eu.org:451/announce",
-    "udp://tracker.bittor.pw:1337/announce",
-    "udp://public.popcorn-tracker.org:6969/announce",
-    "udp://tracker.dler.org:6969/announce",
-    "udp://exodus.desync.com:6969",
-    "udp://open.demonii.si:1337/announce",
-];
 
 #[derive(Debug, Deserialize)]
 struct ApiResult {
@@ -20,11 +10,11 @@ struct ApiResult {
     name: String,
     #[serde(default)]
     info_hash: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "utils::deserialize_string_or_number")]
     seeders: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "utils::deserialize_string_or_number")]
     leechers: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "utils::deserialize_string_or_number")]
     size: String,
     #[serde(default)]
     added: String,
@@ -70,18 +60,6 @@ impl PirateBayScraper {
             _ => "Other".to_string(),
         }
     }
-
-    fn build_magnet(info_hash: &str, name: &str) -> String {
-        let encoded_name = urlencoding::encode(name);
-        let trackers: String = TRACKERS
-            .iter()
-            .map(|t| format!("&tr={}", urlencoding::encode(t)))
-            .collect();
-        format!(
-            "magnet:?xt=urn:btih:{}&dn={}{}",
-            info_hash, encoded_name, trackers
-        )
-    }
 }
 
 impl TorrentScraper for PirateBayScraper {
@@ -114,7 +92,7 @@ impl TorrentScraper for PirateBayScraper {
                 .filter(|r| r.name != "No results returned" && !r.info_hash.is_empty())
                 .map(|r| {
                     let size_bytes: u64 = r.size.parse().unwrap_or(0);
-                    let magnet = Self::build_magnet(&r.info_hash, &r.name);
+                    let magnet = utils::build_magnet(&r.info_hash, &r.name);
                     let info_hash = r.info_hash.to_lowercase();
                     let seeders: u32 = r.seeders.parse().unwrap_or(0);
                     let leechers: u32 = r.leechers.parse().unwrap_or(0);
@@ -130,7 +108,7 @@ impl TorrentScraper for PirateBayScraper {
                         magnet,
                         info_hash,
                         size_bytes,
-                        size_display: format_size(size_bytes),
+                        size_display: utils::format_size(size_bytes),
                         seeders,
                         leechers,
                         date,
