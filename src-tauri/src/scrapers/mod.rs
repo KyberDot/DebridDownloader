@@ -1,4 +1,5 @@
 pub mod piratebay;
+pub mod utils;
 
 use futures::future::join_all;
 use serde::{Deserialize, Serialize};
