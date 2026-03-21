@@ -195,7 +195,7 @@ jobs:
           echo "=== All assets uploaded ==="
 
           # Now generate latest.json from uploaded assets
-          ASSETS=$(gh api "repos/${REPO}/releases/${RELEASE_ID}/assets")
+          ASSETS=$(gh api "repos/${REPO}/releases/${RELEASE_ID}/assets?per_page=100")
 
           asset_url() {
             echo "$ASSETS" | jq -r --arg suffix "$1" \
