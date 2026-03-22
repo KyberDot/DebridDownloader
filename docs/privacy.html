@@ -112,11 +112,22 @@ footer a:hover { color: #fff; }
       <li>Share any data with third parties</li>
     </ul>
 
-    <h2>Data Stored Locally</h2>
-    <p>The following data is stored on your device only:</p>
+    <h2>Credential Security</h2>
+    <div class="highlight-box">
+      <p><strong>Your credentials are never stored in plain text.</strong> DebridDownloader uses your operating system's native secure storage for all sensitive data — there are no config files, databases, or local storage containing your tokens.</p>
+    </div>
+    <p>Specifically, API tokens and OAuth secrets are stored using:</p>
     <ul>
-      <li><strong>API credentials</strong> — Your debrid service tokens are stored in your operating system's secure keychain (macOS Keychain, Windows Credential Manager, or Linux Secret Service). They never leave your device except when authenticating directly with your chosen provider.</li>
-      <li><strong>App settings</strong> — Preferences like download folder, theme, and tracker configurations are stored locally using Tauri's plugin-store.</li>
+      <li><strong>macOS</strong> — Keychain Services (the same system Apple uses for Safari passwords)</li>
+      <li><strong>Windows</strong> — Windows Credential Manager (DPAPI-encrypted)</li>
+      <li><strong>Linux</strong> — Secret Service API (typically GNOME Keyring or KWallet)</li>
+    </ul>
+    <p>Credentials never leave your device except when authenticating directly with your chosen debrid provider over HTTPS.</p>
+
+    <h2>Other Local Data</h2>
+    <p>The following non-sensitive data is stored on your device:</p>
+    <ul>
+      <li><strong>App settings</strong> — Preferences like download folder, theme, and tracker configurations are stored locally using Tauri's plugin-store. These contain no secrets.</li>
       <li><strong>Tracker configurations</strong> — Any torrent tracker sources you configure are stored locally. No default sources are included.</li>
     </ul>
 
