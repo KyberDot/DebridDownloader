@@ -176,6 +176,79 @@ export default function AboutPage() {
           Built with Tauri, React, and Rust.
         </p>
 
+        {/* What's New */}
+        <div
+          className="w-full rounded-xl text-left"
+          style={{
+            marginTop: 32,
+            padding: "20px 24px",
+            background: "var(--theme-bg)",
+            border: "1px solid var(--theme-border)",
+          }}
+        >
+          <div className="text-[11px] text-[var(--theme-text-muted)] uppercase tracking-[1px] mb-4">What's New</div>
+          {[
+            {
+              version: "1.1.8",
+              title: "Video Preview & Floating Mini-Player",
+              items: [
+                "One-click video preview button on every torrent row",
+                "Floating mini-player with drag, resize, and fullscreen",
+                "Streams from debrid providers without downloading first",
+                "Update notification badge in sidebar",
+              ],
+            },
+            {
+              version: "1.1.5",
+              title: "One-Click Magnet Links & Auto-Updater",
+              items: [
+                "Magnet links add instantly with all files auto-selected",
+                "In-app auto-updater across macOS, Windows, and Linux",
+                "Torznab scraper support for private trackers",
+                "Streamlined completed downloads with inline actions",
+              ],
+            },
+            {
+              version: "1.1.0",
+              title: "TorBox Support",
+              items: [
+                "Full TorBox provider with API key authentication",
+                "Switch between Real-Debrid and TorBox at any time",
+                "Video streaming with local proxy server",
+                "6 accent color themes with dark and light mode",
+              ],
+            },
+          ].map((entry, i) => (
+            <div
+              key={entry.version}
+              className={i > 0 ? "mt-4 pt-4" : ""}
+              style={i > 0 ? { borderTop: "1px solid var(--theme-border-subtle)" } : {}}
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <span
+                  className="text-[11px] font-semibold px-2 py-0.5 rounded-md"
+                  style={{ background: "var(--accent-bg-light)", color: "var(--accent)" }}
+                >
+                  v{entry.version}
+                </span>
+                <span className="text-[13px] font-medium text-[var(--theme-text-primary)]">
+                  {entry.title}
+                </span>
+              </div>
+              <ul className="ml-4 mt-1.5">
+                {entry.items.map((item) => (
+                  <li
+                    key={item}
+                    className="text-[13px] text-[var(--theme-text-muted)] leading-relaxed list-disc"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
         <div
           className="w-full rounded-xl"
           style={{
