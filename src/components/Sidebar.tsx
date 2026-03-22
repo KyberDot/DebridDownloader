@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { getActiveProvider } from "../api/providers";
+import { check } from "@tauri-apps/plugin-updater";
 
 interface SidebarProps {
   activeView: string;
@@ -22,10 +23,18 @@ export default function Sidebar({
   const popoverRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLButtonElement>(null);
   const [providerName, setProviderName] = useState("");
+  const [updateAvailable, setUpdateAvailable] = useState<string | null>(null);
 
   useEffect(() => {
     const names: Record<string, string> = { "real-debrid": "Real-Debrid", "torbox": "TorBox" };
     getActiveProvider().then((id) => setProviderName(names[id] ?? id)).catch(() => {});
+  }, []);
+
+  // Check for updates on mount
+  useEffect(() => {
+    check().then((update) => {
+      if (update) setUpdateAvailable(update.version);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -181,7 +190,15 @@ export default function Sidebar({
                   }}
                 >
                   <span className="shrink-0">{item.icon}</span>
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {item.id === "about" && updateAvailable && (
+                    <span
+                      className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
+                      style={{ background: "rgba(59,130,246,0.15)", color: "#3b82f6" }}
+                    >
+                      Update
+                    </span>
+                  )}
                 </button>
               );
             })}
