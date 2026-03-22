@@ -224,7 +224,9 @@ export default function TorrentsPage() {
   const handleDeleteAll = async () => {
     if (!window.confirm(`Delete all ${torrents.length} torrents?`)) return;
     try {
-      await Promise.all(torrents.map((t) => torrentsApi.deleteTorrent(t.id).catch(() => {})));
+      for (const t of torrents) {
+        await torrentsApi.deleteTorrent(t.id).catch(() => {});
+      }
       setTorrents([]);
       setSelectedId(null);
     } catch (e) { setError(String(e)); }
