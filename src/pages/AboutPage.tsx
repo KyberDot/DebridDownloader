@@ -144,8 +144,8 @@ export default function AboutPage() {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center overflow-y-auto">
-      <div className="flex flex-col items-center text-center my-auto" style={{ maxWidth: 420, padding: "40px 32px" }}>
+    <div className="flex-1 overflow-y-auto">
+      <div className="flex flex-col items-center text-center mx-auto min-h-full justify-center" style={{ maxWidth: 420, padding: "40px 32px" }}>
         <img
           src="/app-icon.png"
           alt="DebridDownloader"
