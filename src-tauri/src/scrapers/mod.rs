@@ -1,4 +1,5 @@
 pub mod piratebay;
+pub mod prowlarr;
 pub mod torznab;
 pub mod utils;
 pub use utils::format_size;
@@ -50,7 +51,7 @@ pub struct TrackerConfig {
     pub id: String,
     pub name: String,
     pub url: String,
-    pub tracker_type: String, // "piratebay_api" | "torznab"
+    pub tracker_type: String, // "piratebay_api" | "torznab" | "prowlarr"
     pub enabled: bool,
     #[serde(default)]
     pub api_key: Option<String>,
@@ -105,6 +106,24 @@ fn build_scrapers(configs: &[TrackerConfig]) -> (Vec<Box<dyn TorrentScraper>>, V
                 match &config.api_key {
                     Some(key) if !key.is_empty() => {
                         scrapers.push(Box::new(torznab::TorznabScraper::new(
+                            config.name.clone(),
+                            config.url.clone(),
+                            key.clone(),
+                        )));
+                    }
+                    _ => {
+                        config_errors.push(TrackerStatus {
+                            name: config.name.clone(),
+                            ok: false,
+                            error: Some("Missing API key — configure in Settings".into()),
+                        });
+                    }
+                }
+            }
+            "prowlarr" => {
+                match &config.api_key {
+                    Some(key) if !key.is_empty() => {
+                        scrapers.push(Box::new(prowlarr::ProwlarrScraper::new(
                             config.name.clone(),
                             config.url.clone(),
                             key.clone(),

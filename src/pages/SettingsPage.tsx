@@ -347,7 +347,7 @@ export default function SettingsPage() {
                         <div className="text-[13px] text-[var(--theme-text-muted)] truncate">{tracker.url}</div>
                       </div>
                       <span className="text-[12px] text-[var(--theme-text-ghost)] shrink-0 px-2 py-1 rounded-md" style={{ background: "var(--theme-selected)" }}>
-                        {tracker.tracker_type === "piratebay_api" ? "API" : tracker.tracker_type === "torznab" ? "Torznab" : tracker.tracker_type}
+                        {tracker.tracker_type === "piratebay_api" ? "API" : tracker.tracker_type === "torznab" ? "Torznab" : tracker.tracker_type === "prowlarr" ? "Prowlarr" : tracker.tracker_type}
                       </span>
                       <button
                         onClick={() => handleRemoveTracker(tracker.id)}
@@ -389,6 +389,7 @@ export default function SettingsPage() {
                     >
                       <option value="piratebay_api">API (TPB-style)</option>
                       <option value="torznab">Torznab (Prowlarr/Jackett)</option>
+                      <option value="prowlarr">Prowlarr (All Indexers)</option>
                     </select>
                   </div>
                   <div className="flex gap-3">
@@ -396,7 +397,7 @@ export default function SettingsPage() {
                       type="text"
                       value={newTrackerUrl}
                       onChange={(e) => setNewTrackerUrl(e.target.value)}
-                      placeholder={newTrackerType === "torznab" ? "Base URL (e.g., http://localhost:9696/1/api)" : "Base URL (e.g., https://example.org)"}
+                      placeholder={newTrackerType === "prowlarr" ? "Prowlarr URL (e.g., http://localhost:9696)" : newTrackerType === "torznab" ? "Base URL (e.g., http://localhost:9696/1/api)" : "Base URL (e.g., https://example.org)"}
                       onKeyDown={(e) => e.key === "Enter" && handleAddTracker()}
                       className="flex-1 bg-[var(--theme-bg-content)] border border-[var(--theme-border)] rounded-lg p-3 text-[14px] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-ghost)] outline-none focus:border-[var(--theme-border-hover)] transition-colors font-mono"
                     />
