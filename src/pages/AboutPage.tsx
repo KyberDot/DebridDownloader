@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getVersion } from "@tauri-apps/api/app";
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 
@@ -13,6 +14,11 @@ type UpdateStatus =
 
 export default function AboutPage() {
   const [status, setStatus] = useState<UpdateStatus>({ state: "idle" });
+  const [version, setVersion] = useState("");
+
+  useEffect(() => {
+    getVersion().then(setVersion);
+  }, []);
 
   const handleCheckForUpdates = async () => {
     setStatus({ state: "checking" });
@@ -157,7 +163,7 @@ export default function AboutPage() {
           className="text-[var(--theme-text-ghost)]"
           style={{ fontSize: 13, marginTop: 6 }}
         >
-          Version 1.1.2
+          Version {version}
         </span>
 
         {renderUpdateButton()}
