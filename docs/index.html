@@ -509,7 +509,7 @@ footer a:hover { color: var(--green); }
   <header class="hero">
     <div class="hero-badges">
       <div class="hero-badge" aria-label="Open source software">&#9889; Open Source — GPL 3.0</div>
-      <div class="hero-badge-new" aria-label="Auto-updater"><span class="new-tag">New</span> Auto-Updater + Instant Magnet Links</div>
+      <div class="hero-badge-new" aria-label="Video preview"><span class="new-tag">New</span> Video Preview + Floating Mini-Player</div>
     </div>
     <h1>The fastest way to<br><span>download from Real-Debrid</span></h1>
     <p class="subtitle">Native desktop app with multi-threaded downloads, keyboard-first controls, and secure token storage. Now with TorBox support.</p>
@@ -564,6 +564,22 @@ footer a:hover { color: var(--green); }
     <div class="section-label">What's New</div>
     <h2 class="section-title">Latest updates</h2>
     <div class="changelog">
+      <div class="changelog-entry">
+        <div class="changelog-marker"><div class="changelog-dot"></div><div class="changelog-line"></div></div>
+        <div class="changelog-content">
+          <div class="changelog-header">
+            <span class="changelog-version">v1.1.7</span>
+            <span class="changelog-date">March 2026</span>
+          </div>
+          <div class="changelog-title">Video Preview &amp; Floating Mini-Player</div>
+          <ul class="changelog-items">
+            <li>One-click video preview button on every torrent row</li>
+            <li>Floating mini-player with drag, resize, and fullscreen toggle</li>
+            <li>Streams from debrid providers without downloading first</li>
+            <li>Dynamic version display on About page</li>
+          </ul>
+        </div>
+      </div>
       <div class="changelog-entry">
         <div class="changelog-marker"><div class="changelog-dot"></div><div class="changelog-line"></div></div>
         <div class="changelog-content">
@@ -745,18 +761,18 @@ footer a:hover { color: var(--green); }
 
   <!-- Footer -->
   <footer>
-    <a href="https://casavargas.app">Casa Vargas</a> &middot; <a href="https://github.com/CasaVargas/DebridDownloader">GitHub</a> &middot; <a href="https://discord.gg/SsDDexkhUx">Discord</a> &middot; <a href="https://github.com/sponsors/prjoni99">Sponsor</a> &middot; GPL-3.0 License
+    <a href="https://casavargas.app">Casa Vargas</a> &middot; <a href="https://github.com/CasaVargas/DebridDownloader">GitHub</a> &middot; <a href="https://discord.gg/SsDDexkhUx">Discord</a> &middot; <a href="https://github.com/sponsors/prjoni99">Sponsor</a> &middot; <a href="privacy.html">Privacy Policy</a> &middot; GPL-3.0 License
   </footer>
 
   <script>
 (function() {
-  var BASE = 'https://github.com/CasaVargas/DebridDownloader/releases/download/v1.1.5/';
+  var BASE = 'https://github.com/CasaVargas/DebridDownloader/releases/download/v1.1.7/';
   var LATEST = 'https://github.com/CasaVargas/DebridDownloader/releases/latest';
 
   var directLinks = {
-    mac: BASE + 'DebridDownloader_1.1.5_aarch64.dmg',
-    win: BASE + 'DebridDownloader_1.1.5_x64-setup.exe',
-    linux: BASE + 'DebridDownloader_1.1.5_amd64.deb'
+    mac: BASE + 'DebridDownloader_1.1.7_aarch64.dmg',
+    win: BASE + 'DebridDownloader_1.1.7_x64-setup.exe',
+    linux: BASE + 'DebridDownloader_1.1.7_amd64.deb'
   };
 
   function detectOS() {
@@ -786,7 +802,7 @@ footer a:hover { color: var(--green); }
   }
 
   // Download cards — direct download links
-  var cardLinks = { mac: BASE + 'DebridDownloader_1.1.5_aarch64.dmg', win: BASE + 'DebridDownloader_1.1.5_x64-setup.exe', linux: BASE + 'DebridDownloader_1.1.5_amd64.deb' };
+  var cardLinks = { mac: BASE + 'DebridDownloader_1.1.7_aarch64.dmg', win: BASE + 'DebridDownloader_1.1.7_x64-setup.exe', linux: BASE + 'DebridDownloader_1.1.7_amd64.deb' };
   var cards = document.querySelectorAll('.dl-card[data-os]');
   var found = false;
   cards.forEach(function(card) {
