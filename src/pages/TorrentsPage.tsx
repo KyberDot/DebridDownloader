@@ -221,6 +221,15 @@ export default function TorrentsPage() {
     } catch (e) { setError(String(e)); }
   };
 
+  const handleDeleteAll = async () => {
+    if (!window.confirm(`Delete all ${torrents.length} torrents?`)) return;
+    try {
+      await Promise.all(torrents.map((t) => torrentsApi.deleteTorrent(t.id).catch(() => {})));
+      setTorrents([]);
+      setSelectedId(null);
+    } catch (e) { setError(String(e)); }
+  };
+
   const handleDownloadTorrent = async (id: string) => {
     const torrent = torrents.find((t) => t.id === id);
     if (!torrent) return;
@@ -406,13 +415,24 @@ export default function TorrentsPage() {
         filterValue={filter}
         onFilterChange={setFilter}
         actions={
-          <button
-            onClick={() => setShowAdd(true)}
-            className="text-white rounded-lg text-[15px] font-semibold transition-colors shrink-0 whitespace-nowrap"
-            style={{ background: "var(--accent)", padding: "0 28px" }}
-          >
-            + Add Torrent
-          </button>
+          <div className="flex gap-2">
+            {torrents.length > 0 && (
+              <button
+                onClick={handleDeleteAll}
+                className="rounded-lg text-[14px] font-medium transition-colors shrink-0 whitespace-nowrap text-[#ef4444] cursor-pointer"
+                style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", padding: "0 20px" }}
+              >
+                Delete All
+              </button>
+            )}
+            <button
+              onClick={() => setShowAdd(true)}
+              className="text-white rounded-lg text-[15px] font-semibold transition-colors shrink-0 whitespace-nowrap cursor-pointer"
+              style={{ background: "var(--accent)", padding: "0 28px" }}
+            >
+              + Add Torrent
+            </button>
+          </div>
         }
       />
 
@@ -672,6 +692,17 @@ export default function TorrentsPage() {
           >
             Delete
           </button>
+          {torrents.length > 1 && (
+            <>
+              <div className="my-1 border-t border-[var(--theme-border-subtle)]" />
+              <button
+                className="w-full text-left px-4 py-2.5 text-[15px] text-[#ef4444] cursor-pointer hover:bg-[var(--theme-selected)] transition-colors"
+                onClick={() => { setContextMenu(null); handleDeleteAll(); }}
+              >
+                Delete All ({torrents.length})
+              </button>
+            </>
+          )}
           <button
             className="w-full text-left px-4 py-2.5 text-[15px] text-[var(--theme-text-primary)] cursor-pointer hover:bg-[var(--theme-selected)] transition-colors"
             onClick={() => {
