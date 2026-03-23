@@ -56,6 +56,8 @@ export default function SettingsPage() {
   const [switching, setSwitching] = useState(false);
   const { rcloneInfo, remotes, refreshRemotes } = useRclone();
   const [pathError, setPathError] = useState<string | null>(null);
+  const [pathInput, setPathInput] = useState("");
+  const validateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Add tracker form
   const [newTrackerName, setNewTrackerName] = useState("");
@@ -71,6 +73,7 @@ export default function SettingsPage() {
       getTrackerConfigs().catch(() => [] as TrackerConfig[]),
     ]).then(([s, autostart, configs]) => {
       setSettings(s);
+      setPathInput(s.download_folder ?? "");
       setFrontend((prev) => ({ ...prev, launch_at_login: autostart }));
       setTrackers(configs);
     }).finally(() => setLoading(false));
@@ -172,26 +175,42 @@ export default function SettingsPage() {
   async function handleBrowse() {
     const selected = await open({ directory: true, title: "Select download folder" });
     if (selected && typeof selected === "string") {
-      await applyChange({ download_folder: selected });
-      markSaved("download_folder");
+      handlePathSet(selected);
     }
   }
 
-  async function handlePathChange(newPath: string) {
+  function handlePathInput(newPath: string) {
+    setPathInput(newPath);
     setPathError(null);
-    if (isRclonePath(newPath)) {
-      if (!rcloneInfo?.available) {
-        setPathError("This looks like an rclone remote but rclone is not installed");
-        return;
+
+    // Debounce: save + validate after 500ms of no typing
+    if (validateTimerRef.current) clearTimeout(validateTimerRef.current);
+    validateTimerRef.current = setTimeout(async () => {
+      await applyChange({ download_folder: newPath || null });
+      markSaved("download_folder");
+
+      // Advisory validation for rclone paths
+      if (isRclonePath(newPath)) {
+        if (!rcloneInfo?.available) {
+          setPathError("This looks like an rclone remote but rclone is not installed");
+          return;
+        }
+        try {
+          const remoteName = newPath.split(":")[0];
+          const valid = await validateRcloneRemote(remoteName);
+          if (!valid) {
+            setPathError(`Remote "${remoteName}" not found in rclone config`);
+          }
+        } catch { /* ignore validation errors */ }
       }
-      const remoteName = newPath.split(":")[0];
-      const valid = await validateRcloneRemote(remoteName);
-      if (!valid) {
-        setPathError(`Remote "${remoteName}" not found in rclone config`);
-        return;
-      }
-    }
-    await applyChange({ download_folder: newPath || null });
+    }, 500);
+  }
+
+  function handlePathSet(newPath: string) {
+    // Immediate set (for browse button and remote clicks)
+    setPathInput(newPath);
+    setPathError(null);
+    applyChange({ download_folder: newPath || null });
     markSaved("download_folder");
   }
 
@@ -272,12 +291,12 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-2 flex-1 min-w-0 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg overflow-hidden">
                     <input
                       type="text"
-                      value={settings.download_folder ?? ""}
-                      onChange={(e) => handlePathChange(e.target.value)}
+                      value={pathInput}
+                      onChange={(e) => handlePathInput(e.target.value)}
                       placeholder="Not set — you'll be asked each time"
                       className="flex-1 bg-transparent p-4 text-[15px] text-[var(--theme-text-secondary)] placeholder:text-[var(--theme-text-ghost)] outline-none min-w-0"
                     />
-                    {isRclonePath(settings.download_folder ?? "") && (
+                    {isRclonePath(pathInput) && (
                       <svg className="w-5 h-5 shrink-0 mr-3" style={{ color: "var(--accent)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
                       </svg>
@@ -371,7 +390,7 @@ export default function SettingsPage() {
                       {remotes.map((remote) => (
                         <button
                           key={remote}
-                          onClick={() => handlePathChange(remote)}
+                          onClick={() => handlePathSet(remote)}
                           className="text-[13px] px-3 py-1.5 rounded-lg transition-colors"
                           style={{
                             background: "var(--theme-bg)",

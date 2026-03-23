@@ -197,6 +197,7 @@ pub async fn download_to_rclone(
 
     if let Err(e) = pipe_result {
         let _ = child.kill().await;
+        let _ = child.wait().await; // Reap the process to avoid zombies
         task.status = DownloadStatus::Failed(e.clone());
         emit_progress(&app, task);
         return Err(e);

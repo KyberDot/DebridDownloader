@@ -8,10 +8,12 @@ export function useRclone() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkRclone().then((info) => {
-      setRcloneInfo(info);
-      setLoading(false);
-    });
+    checkRclone()
+      .then((info) => {
+        setRcloneInfo(info);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const refreshRemotes = useCallback(async () => {
