@@ -517,76 +517,72 @@ export default function SettingsPage() {
               )}
 
               {/* Add new tracker */}
-              <div className="p-5 rounded-xl" style={{ background: "var(--theme-bg)", border: "1px solid var(--theme-border)" }}>
-                <div className="text-[14px] text-[var(--theme-text-primary)] font-medium mb-4">Add Tracker</div>
+              <div className="mb-12">
+                <span className="text-[15px] text-[var(--theme-text-primary)] block mb-1.5">Add Tracker</span>
+                <p className="text-[14px] text-[var(--theme-text-muted)] mb-5">
+                  {newTrackerType === "torznab"
+                    ? "Connect to a Torznab-compatible indexer (Prowlarr, Jackett)"
+                    : newTrackerType === "prowlarr"
+                    ? "Connect to Prowlarr to search all configured indexers"
+                    : "Connect to a site with a TPB-compatible JSON API"}
+                </p>
+
                 <div className="flex flex-col gap-3">
+                  {/* Row 1: Name + Type */}
                   <div className="flex gap-3">
                     <input
                       type="text"
                       value={newTrackerName}
                       onChange={(e) => setNewTrackerName(e.target.value)}
                       placeholder="Tracker name"
-                      className="flex-1 bg-[var(--theme-bg-content)] border border-[var(--theme-border)] rounded-lg p-3 text-[14px] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-ghost)] outline-none focus:border-[var(--theme-border-hover)] transition-colors"
+                      className="flex-1 bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg p-4 text-[15px] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-ghost)] outline-none focus:border-[var(--theme-border-hover)] transition-colors"
                     />
                     <select
                       value={newTrackerType}
                       onChange={(e) => setNewTrackerType(e.target.value)}
-                      className="w-[160px] bg-[var(--theme-bg-content)] border border-[var(--theme-border)] rounded-lg p-3 text-[14px] text-[var(--theme-text-primary)] outline-none"
+                      className="w-[200px] bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg p-4 text-[15px] text-[var(--theme-text-primary)] outline-none focus:border-[var(--theme-border-hover)] transition-colors"
                     >
                       <option value="piratebay_api">API (TPB-style)</option>
-                      <option value="torznab">Torznab (Prowlarr/Jackett)</option>
-                      <option value="prowlarr">Prowlarr (All Indexers)</option>
+                      <option value="torznab">Torznab</option>
+                      <option value="prowlarr">Prowlarr</option>
                     </select>
                   </div>
-                  <div className="flex gap-3">
-                    <input
-                      type="text"
-                      value={newTrackerUrl}
-                      onChange={(e) => setNewTrackerUrl(e.target.value)}
-                      placeholder={newTrackerType === "prowlarr" ? "Prowlarr URL (e.g., http://localhost:9696)" : newTrackerType === "torznab" ? "Base URL (e.g., http://localhost:9696/1/api)" : "Base URL (e.g., https://example.org)"}
-                      onKeyDown={(e) => e.key === "Enter" && handleAddTracker()}
-                      className="flex-1 bg-[var(--theme-bg-content)] border border-[var(--theme-border)] rounded-lg p-3 text-[14px] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-ghost)] outline-none focus:border-[var(--theme-border-hover)] transition-colors font-mono"
-                    />
-                    <button
-                      onClick={handleAddTracker}
-                      disabled={!newTrackerName.trim() || !newTrackerUrl.trim()}
-                      className="rounded-lg text-white text-[14px] font-medium disabled:opacity-30 transition-colors shrink-0"
-                      style={{ background: "var(--accent)", padding: "12px 28px" }}
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <div className="flex gap-3">
+
+                  {/* Row 2: URL */}
+                  <input
+                    type="text"
+                    value={newTrackerUrl}
+                    onChange={(e) => setNewTrackerUrl(e.target.value)}
+                    placeholder={newTrackerType === "prowlarr" ? "http://localhost:9696" : newTrackerType === "torznab" ? "http://localhost:9696/1/api" : "https://example.org"}
+                    onKeyDown={(e) => e.key === "Enter" && handleAddTracker()}
+                    className="w-full bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg p-4 text-[15px] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-ghost)] outline-none focus:border-[var(--theme-border-hover)] transition-colors font-mono"
+                  />
+
+                  {/* Row 3: API Key (if needed) */}
+                  {(newTrackerType === "torznab" || newTrackerType === "prowlarr" || newTrackerApiKey) && (
                     <input
                       type="text"
                       value={newTrackerApiKey}
                       onChange={(e) => setNewTrackerApiKey(e.target.value)}
-                      placeholder={newTrackerType === "torznab" ? "API Key (required for Torznab)" : "API Key (optional)"}
+                      placeholder={newTrackerType === "torznab" ? "API Key (required)" : "API Key (optional)"}
                       onKeyDown={(e) => e.key === "Enter" && handleAddTracker()}
-                      className="flex-1 bg-[var(--theme-bg-content)] border border-[var(--theme-border)] rounded-lg p-3 text-[14px] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-ghost)] outline-none focus:border-[var(--theme-border-hover)] transition-colors font-mono"
+                      className="w-full bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg p-4 text-[15px] text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-ghost)] outline-none focus:border-[var(--theme-border-hover)] transition-colors font-mono"
                     />
-                  </div>
-                  {newTrackerType === "torznab" && !newTrackerApiKey.trim() && (
-                    <p className="text-[13px] text-[#f59e0b]">Torznab trackers require an API key to authenticate</p>
                   )}
-                </div>
-                <div className="mt-5 pt-5" style={{ borderTop: "1px solid var(--theme-border-subtle)" }}>
-                  <div className="text-[13px] text-[var(--theme-text-muted)] font-medium mb-3">How it works</div>
-                  <div className="text-[13px] text-[var(--theme-text-ghost)]">
-                    <div className="p-3 rounded-lg" style={{ background: "var(--theme-bg-content)" }}>
-                      {newTrackerType === "torznab" ? (
-                        <>
-                          <p>Connect to a Torznab-compatible indexer (Prowlarr, Jackett, etc.). Enter the API endpoint URL and your API key. The app queries the Torznab API and parses the XML response for search results.</p>
-                          <p className="mt-2 text-[var(--theme-text-muted)]">Find your API URL and key in your indexer manager's settings. For Prowlarr, it's typically <code className="text-[var(--theme-text-muted)] px-1 py-0.5 rounded" style={{ background: "var(--theme-selected)" }}>http://localhost:9696/&#123;indexer_id&#125;/api</code>.</p>
-                        </>
-                      ) : (
-                        <>
-                          <p>Enter the base URL of a site with a TPB-compatible JSON API. The app queries <code className="text-[var(--theme-text-muted)] px-1 py-0.5 rounded" style={{ background: "var(--theme-selected)" }}>/q.php?q=search_term</code> and expects a JSON array of results with fields: name, info_hash, seeders, leechers, size, added, category.</p>
-                          <p className="mt-2 text-[var(--theme-text-muted)]">Need help finding compatible sources? Check the <a href="https://github.com/CasaVargas/DebridDownloader/discussions" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", textDecoration: "underline" }}>community discussions</a>.</p>
-                        </>
-                      )}
-                    </div>
-                  </div>
+
+                  {newTrackerType === "torznab" && !newTrackerApiKey.trim() && (
+                    <p className="text-[13px] text-[#f59e0b]">Torznab trackers require an API key</p>
+                  )}
+
+                  {/* Add button */}
+                  <button
+                    onClick={handleAddTracker}
+                    disabled={!newTrackerName.trim() || !newTrackerUrl.trim()}
+                    className="w-full rounded-lg text-white text-[15px] font-medium disabled:opacity-30 transition-colors py-4"
+                    style={{ background: "var(--accent)" }}
+                  >
+                    Add Tracker
+                  </button>
                 </div>
               </div>
             </section>
