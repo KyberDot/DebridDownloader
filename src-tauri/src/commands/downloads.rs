@@ -115,8 +115,11 @@ pub async fn start_downloads(
                     }
                 };
 
-                let result =
-                    downloader::download_file(app, &mut task, &mut cancel_rx).await;
+                let result = if task.remote.is_some() {
+                    crate::rclone::download_to_rclone(app, &mut task, &mut cancel_rx).await
+                } else {
+                    downloader::download_file(app, &mut task, &mut cancel_rx).await
+                };
 
                 if let Err(e) = result {
                     task.status = DownloadStatus::Failed(e);

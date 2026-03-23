@@ -108,7 +108,7 @@ pub async fn download_file(
     Ok(())
 }
 
-fn emit_progress(app: &AppHandle, task: &DownloadTask) {
+pub fn emit_progress(app: &AppHandle, task: &DownloadTask) {
     let progress = DownloadProgress {
         id: task.id.clone(),
         filename: task.filename.clone(),
