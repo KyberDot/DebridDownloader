@@ -365,68 +365,91 @@ export default function SettingsPage() {
             {/* ── rclone ── */}
             <section className="mb-20">
               <h3 className="text-[12px] text-[var(--theme-text-muted)] uppercase tracking-[1.5px] mb-10 pb-4 border-b border-[var(--theme-border-subtle)]">
-                rclone
+                Remote Downloads
               </h3>
               {rcloneInfo?.available ? (
-                <div className="mb-12">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-[15px] text-[var(--theme-text-primary)]">Status</span>
-                    <span className="text-[13px]" style={{ color: accentColor }}>Detected</span>
+                <>
+                  <div className="mb-12">
+                    <span className="text-[15px] text-[var(--theme-text-primary)] block mb-1.5">rclone</span>
+                    <p className="text-[14px] text-[var(--theme-text-muted)]">
+                      {rcloneInfo.version} — download directly to cloud storage without using local disk
+                    </p>
                   </div>
-                  <p className="text-[14px] text-[var(--theme-text-muted)] mb-4">
-                    {rcloneInfo.version}
-                  </p>
-                  <div className="flex items-center gap-3 mb-4">
-                    <button
-                      onClick={refreshRemotes}
-                      className="bg-[var(--theme-selected)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-border-hover)] rounded-lg text-[14px] font-medium transition-colors"
-                      style={{ padding: "10px 20px" }}
-                    >
-                      List Remotes
-                    </button>
-                  </div>
-                  {remotes.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {remotes.map((remote) => (
-                        <button
-                          key={remote}
-                          onClick={() => handlePathSet(remote)}
-                          className="text-[13px] px-3 py-1.5 rounded-lg transition-colors"
-                          style={{
-                            background: "var(--theme-bg)",
-                            border: "1px solid var(--theme-border)",
-                            color: "var(--theme-text-secondary)",
-                          }}
-                          onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
-                            (e.currentTarget as HTMLElement).style.color = "var(--accent)";
-                          }}
-                          onMouseLeave={(e) => {
-                            (e.currentTarget as HTMLElement).style.borderColor = "var(--theme-border)";
-                            (e.currentTarget as HTMLElement).style.color = "var(--theme-text-secondary)";
-                          }}
-                        >
-                          {remote}
-                        </button>
-                      ))}
+
+                  <div className="mb-12">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-[15px] text-[var(--theme-text-primary)]">Your Remotes</span>
+                      <button
+                        onClick={refreshRemotes}
+                        className="text-[13px] font-medium transition-colors"
+                        style={{ color: "var(--accent)" }}
+                      >
+                        {remotes.length > 0 ? "Refresh" : "Load Remotes"}
+                      </button>
                     </div>
-                  )}
-                </div>
+                    {remotes.length > 0 ? (
+                      <div className="space-y-2">
+                        {remotes.map((remote) => (
+                          <button
+                            key={remote}
+                            onClick={() => handlePathSet(remote)}
+                            className="w-full flex items-center gap-3 p-4 rounded-xl transition-all text-left"
+                            style={{
+                              background: "var(--theme-bg)",
+                              border: pathInput === remote ? `2px solid var(--accent)` : "2px solid var(--theme-border)",
+                            }}
+                            onMouseEnter={(e) => {
+                              if (pathInput !== remote) (e.currentTarget as HTMLElement).style.borderColor = "var(--theme-border-hover)";
+                            }}
+                            onMouseLeave={(e) => {
+                              if (pathInput !== remote) (e.currentTarget as HTMLElement).style.borderColor = "var(--theme-border)";
+                            }}
+                          >
+                            <svg className="w-5 h-5 shrink-0" style={{ color: pathInput === remote ? "var(--accent)" : "var(--theme-text-muted)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
+                            </svg>
+                            <span
+                              className="text-[15px] font-medium"
+                              style={{ color: pathInput === remote ? "var(--accent)" : "var(--theme-text-primary)" }}
+                            >
+                              {remote}
+                            </span>
+                            {pathInput === remote && (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-auto shrink-0" style={{ color: "var(--accent)" }}>
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-5 rounded-xl text-center" style={{ background: "var(--theme-bg)", border: "1px dashed var(--theme-border)" }}>
+                        <p className="text-[14px] text-[var(--theme-text-muted)]">Click "Load Remotes" to see your configured rclone remotes</p>
+                        <p className="text-[13px] text-[var(--theme-text-ghost)] mt-1">Set up remotes with <code className="px-1 py-0.5 rounded" style={{ background: "var(--theme-selected)" }}>rclone config</code> in your terminal</p>
+                      </div>
+                    )}
+                  </div>
+                </>
               ) : (
                 <div className="mb-12">
-                  <span className="text-[15px] text-[var(--theme-text-primary)] block mb-1.5">Status</span>
-                  <p className="text-[14px] text-[var(--theme-text-muted)]">
-                    rclone not installed — install from{" "}
-                    <a
-                      href="https://rclone.org"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: "var(--accent)", textDecoration: "underline" }}
-                    >
-                      rclone.org
-                    </a>
-                    {" "}to enable remote downloads
+                  <span className="text-[15px] text-[var(--theme-text-primary)] block mb-1.5">rclone</span>
+                  <p className="text-[14px] text-[var(--theme-text-muted)] mb-4">
+                    Stream downloads directly to Google Drive, OneDrive, S3, or any cloud storage — no local disk needed
                   </p>
+                  <div className="p-5 rounded-xl" style={{ background: "var(--theme-bg)", border: "1px dashed var(--theme-border)" }}>
+                    <p className="text-[14px] text-[var(--theme-text-muted)]">
+                      rclone not detected — install from{" "}
+                      <a
+                        href="https://rclone.org/install/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--accent)", textDecoration: "underline" }}
+                      >
+                        rclone.org
+                      </a>
+                      {" "}to enable remote downloads
+                    </p>
+                  </div>
                 </div>
               )}
             </section>
