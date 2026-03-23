@@ -236,6 +236,8 @@ export default function TorrentsPage() {
     const torrent = torrents.find((t) => t.id === id);
     if (!torrent) return;
     try {
+      // Supports both local paths and rclone remotes (e.g. "gdrive:Media/Movies")
+      // Backend detects rclone paths and routes to rclone rcat automatically
       let folder = settings?.download_folder ?? null;
       if (!folder) {
         const picked = await open({ directory: true, title: "Select download folder" });
@@ -263,6 +265,8 @@ export default function TorrentsPage() {
     setDownloading(true);
     try {
       const s = await getSettings();
+      // Supports both local paths and rclone remotes (e.g. "gdrive:Media/Movies")
+      // Backend detects rclone paths and routes to rclone rcat automatically
       let folder = s.download_folder;
       if (!folder) {
         const picked = await open({ directory: true, title: "Select download folder" });
