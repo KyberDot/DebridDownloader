@@ -23,6 +23,7 @@ import CompletedPage from "./pages/CompletedPage";
 import SearchPage from "./pages/SearchPage";
 import SettingsPage from "./pages/SettingsPage";
 import AboutPage from "./pages/AboutPage";
+import WatchListPage from "./pages/WatchListPage";
 
 const navigateRef: { current: ReturnType<typeof useNavigate> | null } = { current: null };
 
@@ -189,6 +190,7 @@ function App() {
                 <Route path="/downloads" element={<DownloadsPage />} />
                 <Route path="/completed" element={<CompletedPage />} />
                 <Route path="/search" element={<SearchPage />} />
+                <Route path="/watchlist" element={<WatchListPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="*" element={<Navigate to="/torrents" replace />} />
