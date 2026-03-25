@@ -185,3 +185,46 @@ export interface RcloneInfo {
   version: string;
   available: boolean;
 }
+
+// ── Watch List ──
+
+export type RuleType =
+  | { type: "Keyword" }
+  | { type: "TvShow"; last_season: number | null; last_episode: number | null };
+
+export type WatchAction = "Notify" | "AutoAdd";
+
+export type MatchStatus =
+  | { type: "Notified" }
+  | { type: "Added" }
+  | { type: "Failed"; reason: string };
+
+export interface WatchRule {
+  id: string;
+  name: string;
+  rule_type: RuleType;
+  query: string;
+  category: string | null;
+  regex_filter: string | null;
+  min_seeders: number | null;
+  min_size_bytes: number | null;
+  max_size_bytes: number | null;
+  action: WatchAction;
+  interval_minutes: number;
+  enabled: boolean;
+  created_at: string;
+  last_checked: string | null;
+}
+
+export interface WatchMatch {
+  rule_id: string;
+  info_hash: string;
+  magnet: string;
+  title: string;
+  size_bytes: number;
+  matched_at: string;
+  action_taken: WatchAction;
+  status: MatchStatus;
+  season: number | null;
+  episode: number | null;
+}

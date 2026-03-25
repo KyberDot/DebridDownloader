@@ -9,6 +9,7 @@ interface SidebarProps {
   onSearchOpen: () => void;
   onSettingsOpen: () => void;
   onAboutOpen: () => void;
+  unreadWatchCount?: number;
 }
 
 export default function Sidebar({
@@ -17,6 +18,7 @@ export default function Sidebar({
   onSearchOpen,
   onSettingsOpen,
   onAboutOpen,
+  unreadWatchCount,
 }: SidebarProps) {
   const { user, logout } = useAuth();
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -113,6 +115,17 @@ export default function Sidebar({
           onClick: onSearchOpen,
         },
         {
+          id: "watchlist",
+          label: "Watch List",
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          ),
+          onClick: () => onNavigate("watchlist"),
+        },
+        {
           id: "settings",
           label: "Settings",
           icon: (
@@ -191,6 +204,14 @@ export default function Sidebar({
                 >
                   <span className="shrink-0">{item.icon}</span>
                   <span className="flex-1">{item.label}</span>
+                  {item.id === "watchlist" && (unreadWatchCount ?? 0) > 0 && (
+                    <span
+                      className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
+                      style={{ background: "var(--accent-bg-light)", color: "var(--accent)" }}
+                    >
+                      {unreadWatchCount}
+                    </span>
+                  )}
                   {item.id === "about" && updateAvailable && (
                     <span
                       className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"

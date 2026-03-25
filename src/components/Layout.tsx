@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { listen } from "@tauri-apps/api/event";
 import Sidebar from "./Sidebar";
 import { DownloadTasksProvider } from "../hooks/useDownloadTasks";
 import { useAccentColor } from "../hooks/useAccentColor";
@@ -19,11 +20,31 @@ export default function Layout() {
     ? "settings"
     : location.pathname.startsWith("/about")
     ? "about"
+    : location.pathname.startsWith("/watchlist")
+    ? "watchlist"
     : "torrents";
 
   const handleNavigate = (view: string) => {
     navigate("/" + view);
   };
+
+  const [unreadWatchCount, setUnreadWatchCount] = useState(0);
+
+  useEffect(() => {
+    if (activeView === "watchlist") {
+      setUnreadWatchCount(0);
+      localStorage.setItem("last_visited_watchlist", new Date().toISOString());
+    }
+  }, [activeView]);
+
+  useEffect(() => {
+    const unlisten = listen("watchlist-match", () => {
+      if (activeView !== "watchlist") {
+        setUnreadWatchCount((c) => c + 1);
+      }
+    });
+    return () => { unlisten.then((fn) => fn()); };
+  }, [activeView]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -74,6 +95,7 @@ export default function Layout() {
           onSearchOpen={() => navigate("/search")}
           onSettingsOpen={() => navigate("/settings")}
           onAboutOpen={() => navigate("/about")}
+          unreadWatchCount={unreadWatchCount}
         />
         <main className="flex-1 overflow-hidden flex flex-col" style={{ background: "var(--theme-bg-content)" }}>
           <Outlet />
