@@ -14,6 +14,7 @@ use tauri::{
     Emitter, Manager,
 };
 use tauri_plugin_deep_link::DeepLinkExt;
+use tauri_plugin_store::StoreExt;
 
 /// Holds a magnet URI received during cold start, before the frontend is ready.
 pub struct PendingMagnetUri(pub std::sync::Mutex<Option<String>>);
@@ -168,6 +169,36 @@ pub fn run() {
                     log::error!("Streaming server failed: {}", e);
                 }
             });
+
+            // Load watch list data from store and spawn watch loop
+            {
+                let state: tauri::State<'_, AppState> = app.state();
+                let store = app.store("settings.json").map_err(|e| e.to_string())?;
+
+                if let Some(val) = store.get("watch_rules") {
+                    if let Ok(rules) = serde_json::from_value::<Vec<watchlist::WatchRule>>(val.clone()) {
+                        *state.watch_rules.blocking_write() = rules;
+                    }
+                }
+
+                if let Some(val) = store.get("watch_matches") {
+                    if let Ok(matches) = serde_json::from_value::<Vec<watchlist::WatchMatch>>(val.clone()) {
+                        *state.watch_matches.blocking_write() = matches;
+                    }
+                }
+
+                if let Some(val) = store.get("watch_seen_hashes") {
+                    if let Ok(seen) = serde_json::from_value::<std::collections::HashMap<String, std::collections::HashSet<String>>>(val.clone()) {
+                        *state.watch_seen.blocking_write() = seen;
+                    }
+                }
+
+                let app_handle = app.handle().clone();
+                let cancel = state.watch_cancel.clone();
+                tauri::async_runtime::spawn(async move {
+                    watchlist::start_watch_loop(app_handle, cancel).await;
+                });
+            }
 
             Ok(())
         })

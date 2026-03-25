@@ -1,7 +1,7 @@
 use crate::scrapers::TrackerConfig;
 use crate::state::AppState;
 use crate::watchlist::{self, WatchMatch, WatchRule, WatchAction, RuleType, MatchStatus};
-use tauri::{Manager, State};
+use tauri::{Emitter, Manager, State};
 use tauri_plugin_store::StoreExt;
 
 // ── Store helpers ───────────────────────────────────────────────────
@@ -135,8 +135,57 @@ pub async fn run_watch_rule_now(
     state: State<'_, AppState>,
     id: String,
 ) -> Result<Vec<WatchMatch>, String> {
-    // Placeholder — full implementation in Task 5
-    Ok(vec![])
+    let rule = {
+        let rules = state.watch_rules.read().await;
+        rules.iter().find(|r| r.id == id).cloned()
+    };
+
+    let rule = rule.ok_or("Rule not found")?;
+
+    let tracker_configs = load_tracker_configs(&app);
+    if tracker_configs.is_empty() {
+        return Err("No trackers configured".to_string());
+    }
+
+    let new_matches = watchlist::run_rule_standalone(&app, &state, &rule, &tracker_configs).await;
+
+    if !new_matches.is_empty() {
+        for m in &new_matches {
+            let _ = app.emit("watchlist-match", m.clone());
+        }
+
+        let mut matches = state.watch_matches.write().await;
+        matches.extend(new_matches.clone());
+        if matches.len() > watchlist::MAX_MATCHES {
+            let drain_count = matches.len() - watchlist::MAX_MATCHES;
+            matches.drain(..drain_count);
+        }
+        save_matches(&app, &matches)?;
+
+        let mut rules = state.watch_rules.write().await;
+        if let Some(existing) = rules.iter_mut().find(|r| r.id == id) {
+            existing.last_checked = Some(chrono::Utc::now().to_rfc3339());
+
+            if let watchlist::RuleType::TvShow {
+                ref mut last_season,
+                ref mut last_episode,
+            } = existing.rule_type
+            {
+                for m in &new_matches {
+                    if let (Some(s), Some(e)) = (m.season, m.episode) {
+                        let current = (last_season.unwrap_or(0), last_episode.unwrap_or(0));
+                        if (s, e) > current {
+                            *last_season = Some(s);
+                            *last_episode = Some(e);
+                        }
+                    }
+                }
+            }
+        }
+        save_rules(&app, &rules)?;
+    }
+
+    Ok(new_matches)
 }
 
 fn load_tracker_configs(app: &tauri::AppHandle) -> Vec<TrackerConfig> {
