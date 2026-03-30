@@ -409,6 +409,33 @@ export default function SettingsPage() {
                 </select>
               </div>
 
+              {/* Speed limit */}
+              <div className="mb-12">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-[15px] text-[var(--theme-text-primary)]">Speed Limit</span>
+                  {savedField === "speed_limit_bytes" && (
+                    <span style={{ color: accentColor }} className="text-[13px]">Saved</span>
+                  )}
+                </div>
+                <select
+                  value={settings.speed_limit_bytes ?? 0}
+                  onChange={async (e) => {
+                    const val = Number(e.target.value);
+                    await applyChange({ speed_limit_bytes: val === 0 ? null : val });
+                    markSaved("speed_limit_bytes");
+                  }}
+                  className="w-full bg-[var(--theme-bg)] border border-[var(--theme-border)] rounded-lg p-4 text-[15px] text-[var(--theme-text-primary)] focus:outline-none transition-colors"
+                >
+                  <option value={0}>Unlimited</option>
+                  <option value={1048576}>1 MB/s</option>
+                  <option value={5242880}>5 MB/s</option>
+                  <option value={10485760}>10 MB/s</option>
+                  <option value={26214400}>25 MB/s</option>
+                  <option value={52428800}>50 MB/s</option>
+                  <option value={104857600}>100 MB/s</option>
+                </select>
+              </div>
+
               {/* Subfolders toggle */}
               <ToggleRow
                 label="Create subfolders per torrent"
@@ -1092,6 +1119,83 @@ export default function SettingsPage() {
                     );
                   })}
                 </div>
+              </div>
+            </section>
+
+            {/* ── Backup & Restore ── */}
+            <section className="mb-20">
+              <h3 className="text-[12px] text-[var(--theme-text-muted)] uppercase tracking-[1.5px] mb-10 pb-4 border-b border-[var(--theme-border-subtle)]">
+                Backup & Restore
+              </h3>
+
+              <div className="mb-12">
+                <span className="text-[15px] text-[var(--theme-text-primary)] block mb-1.5">Export Settings</span>
+                <p className="text-[14px] text-[var(--theme-text-muted)] mb-4">
+                  Save all settings, trackers, and watch rules to a file
+                </p>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const { save } = await import("@tauri-apps/plugin-dialog");
+                        const { writeTextFile } = await import("@tauri-apps/plugin-fs");
+                        const { exportSettings } = await import("../api/backup");
+                        const includeKeys = (document.getElementById("include-credentials") as HTMLInputElement)?.checked ?? false;
+                        const frontendJson = localStorage.getItem("frontend-settings") ?? "{}";
+                        const json = await exportSettings(includeKeys, frontendJson);
+                        const path = await save({
+                          defaultPath: "debrid-settings.json",
+                          filters: [{ name: "Settings", extensions: ["json"] }],
+                        });
+                        if (path) {
+                          await writeTextFile(path, json);
+                        }
+                      } catch (e) {
+                        console.error("Export failed:", e);
+                      }
+                    }}
+                    className="bg-[var(--theme-selected)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-border-hover)] rounded-lg text-[14px] font-medium transition-colors"
+                    style={{ padding: "10px 24px" }}
+                  >
+                    Export
+                  </button>
+                  <label className="flex items-center gap-2 text-[14px] text-[var(--theme-text-muted)] cursor-pointer">
+                    <input type="checkbox" id="include-credentials" className="rounded" />
+                    Include API keys and tokens
+                  </label>
+                </div>
+              </div>
+
+              <div className="mb-12">
+                <span className="text-[15px] text-[var(--theme-text-primary)] block mb-1.5">Import Settings</span>
+                <p className="text-[14px] text-[var(--theme-text-muted)] mb-4">
+                  Restore settings from a previously exported file
+                </p>
+                <button
+                  onClick={async () => {
+                    try {
+                      const { open: openDialog } = await import("@tauri-apps/plugin-dialog");
+                      const { readTextFile } = await import("@tauri-apps/plugin-fs");
+                      const { importSettings } = await import("../api/backup");
+                      const path = await openDialog({
+                        filters: [{ name: "Settings", extensions: ["json"] }],
+                      });
+                      if (!path || typeof path !== "string") return;
+                      const json = await readTextFile(path);
+                      const result = await importSettings(json);
+                      if (result.frontend_settings) {
+                        localStorage.setItem("frontend-settings", result.frontend_settings);
+                      }
+                      window.location.reload();
+                    } catch (e) {
+                      console.error("Import failed:", e);
+                    }
+                  }}
+                  className="bg-[var(--theme-selected)] border border-[var(--theme-border)] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:border-[var(--theme-border-hover)] rounded-lg text-[14px] font-medium transition-colors"
+                  style={{ padding: "10px 24px" }}
+                >
+                  Import
+                </button>
               </div>
             </section>
 
