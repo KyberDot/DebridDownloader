@@ -1,15 +1,18 @@
 # ⚡ DebridDownloader
 
-> 🚀 A blazing-fast, native desktop client for managing torrents and downloads through [Real-Debrid](https://real-debrid.com) and [TorBox](https://torbox.app). Built with Tauri, React, and Rust.
+> **📢 Project Status:** DebridDownloader has reached v1.6.0 with Premiumize support, and this will be the final release. I can no longer afford the tooling costs to continue active development. It's been an incredible ride building this — from a simple downloader to a full media pipeline with rclone, symlinks, auto-organize, media server integration, and three debrid providers. Thank you to everyone who used it, filed issues, and believed in the project. All good things must come to an end. The app remains fully functional and the code is open source — fork it, improve it, make it yours. — *Jonathan / Casa Vargas*
+
+> 🚀 A blazing-fast, native desktop client for managing torrents and downloads through [Real-Debrid](https://real-debrid.com), [TorBox](https://torbox.app), and [Premiumize](https://premiumize.me). Built with Tauri, React, and Rust.
 
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-GPL--3.0-green?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-1.1.4-orange?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.6.0-orange?style=for-the-badge)
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![Tauri](https://img.shields.io/badge/tauri-%2324C8DB.svg?style=for-the-badge&logo=tauri&logoColor=%23FFFFFF)
 ![Real-Debrid](https://img.shields.io/badge/Real--Debrid-77C351?style=for-the-badge)
 ![TorBox](https://img.shields.io/badge/TorBox-3b82f6?style=for-the-badge)
+![Premiumize](https://img.shields.io/badge/Premiumize-ff6600?style=for-the-badge)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/SsDDexkhUx)
 
 ---
@@ -55,7 +58,7 @@
 
 ## 📋 Requirements
 
-- 🔑 A [Real-Debrid](https://real-debrid.com) or [TorBox](https://torbox.app) premium account
+- 🔑 A [Real-Debrid](https://real-debrid.com), [TorBox](https://torbox.app), or [Premiumize](https://premiumize.me) premium account
 - 💻 macOS 11+ / Windows 10+ / Modern Linux distro
 
 ---
@@ -67,6 +70,7 @@
 3. 🔐 Connect your debrid provider:
    - **Real-Debrid** — API token from [real-debrid.com/apitoken](https://real-debrid.com/apitoken) or OAuth login
    - **TorBox** — API token from [torbox.app](https://torbox.app)
+   - **Premiumize** — API key from [premiumize.me/account](https://www.premiumize.me/account)
 4. ⚙️ (Optional) Add tracker sources in **Settings > Trackers** to enable search
 5. 🧲 Start adding torrents and downloading!
 
